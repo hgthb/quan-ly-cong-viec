@@ -8,96 +8,97 @@
     <style>
         :root { 
             --primary: #4361ee; --success: #2ecc71; --danger: #ef476f; 
-            --warning: #ffd166; --dark: #2b2d42; --bg: #f8f9fc;
-            --text-main: #4a5568; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --warning: #ffd166; --dark: #1e293b; --bg: #f1f5f9;
+            --text-main: #334155; --shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
-        .container { max-width: 1250px; margin: auto; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; height: 100vh; box-sizing: border-box; overflow: hidden; } /* Chặn cuộn trang */
+        .container { max-width: 1100px; margin: auto; display: flex; flex-direction: column; height: 100%; }
         
-        /* 1. HEADER COMPACT */
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; } /* Giảm margin */
-        .header-section h2 { color: var(--dark); margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .admin-controls { display: flex; align-items: center; gap: 8px; }
-        .btn-auth { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        /* 1. HEADER (Siêu gọn) */
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
+        .header-section h2 { color: var(--dark); margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .admin-controls { display: flex; gap: 8px; }
+        .btn-auth { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; font-size: 11px; display: flex; align-items: center; gap: 5px; }
         #btnLogin { background: var(--dark); color: white; }
         #btnLogout { background: var(--danger); color: white; display: none; }
         
-        /* 2. STATS COMPACT (Dạng nằm ngang tiết kiệm chiều cao) */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; } /* Giảm margin xuống Form */
+        /* 2. STATS (Nằm ngang, bé xíu) */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; flex-shrink: 0; }
         .stat-card { 
-            background: white; padding: 10px 20px; border-radius: 8px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); 
-            display: flex; align-items: center; justify-content: space-between; /* Căn ngang */
+            background: white; padding: 6px 15px; border-radius: 6px; box-shadow: var(--shadow); border-left: 3px solid var(--primary); 
+            display: flex; align-items: center; justify-content: space-between; height: 36px;
         }
-        .stat-card h3 { margin: 0; font-size: 13px; color: #64748b; text-transform: uppercase; }
-        .stat-card .value { font-size: 20px; font-weight: 800; color: var(--dark); margin: 0; }
+        .stat-card h3 { margin: 0; font-size: 11px; color: #64748b; text-transform: uppercase; }
+        .stat-card .value { font-size: 16px; font-weight: 800; color: var(--dark); }
 
-        /* 3. ADMIN FORM (Kéo sát lên trên) */
+        /* 3. FORM (1 dòng duy nhất) */
         #adminForm { 
-            background: white; padding: 15px; border-radius: 10px; box-shadow: var(--shadow); 
-            display: grid; grid-template-columns: 22% 12% 12% 8% 15% 15% 8%; gap: 8px; margin-bottom: 10px; /* Sát với bảng */
-            align-items: center;
+            background: white; padding: 8px 15px; border-radius: 8px; box-shadow: var(--shadow); 
+            display: grid; grid-template-columns: 22% 13% 13% 8% 15% 15% 8%; gap: 6px; margin-bottom: 8px; flex-shrink: 0; align-items: center;
         }
         .admin-only-input { visibility: hidden; }
         body.is-admin .admin-only-input { visibility: visible; }
+        input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; height: 30px; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 0; height: 30px; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%; font-size: 11px; }
 
-        input { padding: 8px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; width: 100%; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 13px; }
-
-        /* 4. TABLE COMPACT (Giảm chiều cao dòng) */
-        .card-table { background: white; border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
-        th { background: #f8fafc; color: #475569; padding: 12px; text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 13px; height: 45px; } /* Cố định chiều cao dòng thấp hơn */
+        /* 4. TABLE (Cố định cứng kích thước) */
+        .card-table { background: white; border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; flex-grow: 1; display: flex; flex-direction: column; }
+        .table-responsive { width: 100%; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         
-        .col-info { width: 22%; } .col-date { width: 12%; } .col-iter { width: 8%; text-align: center; } 
-        .col-progress { width: 18%; } .col-status { width: 12%; } .col-action { width: 16%; }
+        th { background: #f8fafc; color: #475569; padding: 0 10px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; height: 35px; }
+        
+        /* Dòng dữ liệu: Cố định cao 40px */
+        td { padding: 0 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 13px; height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Cột */
+        .col-info { width: 22%; } .col-date { width: 13%; } .col-iter { width: 8%; text-align: center; } 
+        .col-progress { width: 18%; } .col-status { width: 12%; } .col-action { width: 14%; }
 
-        .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 6px; margin-top: 5px; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: 0.8s width; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: white; display: inline-block; }
+        .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 5px; margin-top: 3px; }
+        .progress-fill { height: 100%; border-radius: 10px; }
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: white; display: inline-block; }
         .bg-new { background: var(--primary); } .bg-done { background: var(--success); }
         
-        .btn-group { display: flex; gap: 5px; }
-        .btn-icon { width: 28px; height: 28px; border-radius: 5px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-group { display: flex; gap: 4px; }
+        .btn-icon { width: 24px; height: 24px; border-radius: 4px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; }
         .btn-done { background: var(--success); } .btn-delete { background: #fee2e2; color: var(--danger); }
-        .btn-iter { background: var(--warning); color: var(--dark); font-size: 10px; width: 20px; height: 20px; margin-left: 5px; } 
+        .btn-iter { background: var(--warning); color: var(--dark); width: 18px; height: 18px; font-size: 9px; margin-left: 4px; } 
         .disabled-btn { opacity: 0.2; cursor: not-allowed !important; pointer-events: none; }
 
-        /* 5. PAGINATION (Nằm sát dưới bảng) */
-        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 0; padding-bottom: 10px; }
-        .btn-page { background: white; border: 1px solid #cbd5e1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
-        .btn-page:hover:not(:disabled) { background: var(--bg); border-color: var(--primary); color: var(--primary); }
-        .btn-page:disabled { opacity: 0.5; cursor: not-allowed; background: #f1f5f9; }
-        .page-info { font-size: 13px; font-weight: 600; color: #64748b; }
+        /* 5. PHÂN TRANG (Sát đáy) */
+        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px 0 0 0; flex-shrink: 0; }
+        .btn-page { background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; color: var(--text-main); display: flex; align-items: center; gap: 4px; }
+        .btn-page:disabled { opacity: 0.5; background: #f1f5f9; }
+        .page-info { font-size: 12px; font-weight: 600; color: #64748b; }
 
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; }
     </style>
 </head>
 <body class="is-client">
 
-<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Đang xử lý...</div>
+<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Loading...</div>
 
 <div class="container">
     <div class="header-section">
         <h2><i class="fa-solid fa-clipboard-list"></i> QUẢN LÝ TIẾN ĐỘ</h2>
         <div class="admin-controls">
-            <button id="btnLogin" class="btn-auth" onclick="loginAdmin()"><i class="fa-solid fa-key"></i> Admin</button>
-            <button id="btnLogout" class="btn-auth" onclick="logoutAdmin()"><i class="fa-solid fa-sign-out"></i> Thoát</button>
+            <button id="btnLogin" class="btn-auth" onclick="loginAdmin()"><i class="fa-solid fa-key"></i> Login</button>
+            <button id="btnLogout" class="btn-auth" onclick="logoutAdmin()"><i class="fa-solid fa-sign-out"></i> Logout</button>
         </div>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><h3>Tổng công việc</h3><div id="statTotal" class="value">0</div></div>
-        <div class="stat-card"><h3>Đã hoàn thành</h3><div id="statDone" class="value">0</div></div>
+        <div class="stat-card"><h3>Tổng việc</h3><div id="statTotal" class="value">0</div></div>
+        <div class="stat-card"><h3>Hoàn thành</h3><div id="statDone" class="value">0</div></div>
     </div>
 
     <div id="adminForm">
         <div class="admin-only-input"><input type="text" id="taskName" placeholder="Tên việc..."></div>
         <div class="admin-only-input"><input type="date" id="startDate"></div>
         <div class="admin-only-input"><input type="date" id="deadline"></div>
-        <div class="admin-only-input"><input type="number" id="iterCount" value="1" min="1" title="Lần giao"></div>
-        <div class="admin-only-input"><input type="text" id="dept" placeholder="Phòng ban..."></div>
+        <div class="admin-only-input"><input type="number" id="iterCount" value="1" min="1" title="Lần"></div>
+        <div class="admin-only-input"><input type="text" id="dept" placeholder="Phòng..."></div>
         <div class="admin-only-input"></div> 
         <div class="admin-only-input"><button class="btn-add" onclick="addTask()">THÊM</button></div>
     </div>
@@ -110,7 +111,7 @@
                         <th class="col-info">Việc / Phòng</th>
                         <th class="col-date">Bắt đầu</th>
                         <th class="col-date">Hạn chót</th>
-                        <th class="col-iter">Lần giao</th>
+                        <th class="col-iter">Lần</th>
                         <th class="col-progress">Tiến độ</th>
                         <th class="col-status">Trạng thái</th>
                         <th class="col-action">Thao tác</th>
@@ -121,15 +122,15 @@
         </div>
     </div>
 
-    <div class="pagination-container" id="paginationControls" style="display:none">
+    <div class="pagination-container" id="paginationControls">
         <button class="btn-page" id="btnPrev" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> Trước</button>
-        <span class="page-info" id="pageInfo">1 / 1</span>
+        <span class="page-info" id="pageInfo">Trang 1</span>
         <button class="btn-page" id="btnNext" onclick="changePage(1)">Sau <i class="fa-solid fa-chevron-right"></i></button>
     </div>
 </div>
 
 <script>
-    // === CẤU HÌNH (THAY MÃ CỦA BẠN VÀO ĐÂY) ===
+    // === 1. CẤU HÌNH ===
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     
@@ -137,9 +138,11 @@
     let allTasks = [];
     let MASTER_KEY = localStorage.getItem('my_task_admin_key');
 
+    // Phân trang
     let currentPage = 1;
     const ITEMS_PER_PAGE = 5; // Cố định 5 dòng
 
+    // === 2. XỬ LÝ DỮ LIỆU ===
     async function fetchData() {
         showLoading(true);
         checkPermissions();
@@ -150,11 +153,10 @@
             });
             const data = await res.json();
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
-            currentPage = 1; // Về trang đầu khi tải lại
+            currentPage = 1; 
             renderTable();
         } catch (err) { 
             console.error(err);
-            document.getElementById('taskBody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px">Lỗi tải dữ liệu.</td></tr>';
         }
         showLoading(false);
     }
@@ -168,12 +170,13 @@
                 headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
                 body: JSON.stringify({ "tasks": allTasks })
             });
-            if (!res.ok) throw new Error("Lỗi quyền ghi (Master Key).");
+            if (!res.ok) throw new Error("Lỗi quyền ghi!");
             renderTable();
-        } catch (err) { alert("Lỗi: " + err.message); }
+        } catch (err) { alert(err.message); }
         showLoading(false);
     }
 
+    // === 3. RENDER TABLE (LOGIC QUAN TRỌNG) ===
     function renderTable() {
         const body = document.getElementById('taskBody');
         body.innerHTML = '';
@@ -183,21 +186,17 @@
         document.getElementById('statTotal').innerText = allTasks.length;
         document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
 
-        if (allTasks.length === 0) {
-            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#94a3b8">Chưa có dữ liệu.</td></tr>';
-            document.getElementById('paginationControls').style.display = 'none';
-            return;
-        }
-
-        // --- PHÂN TRANG ---
+        // Xử lý phân trang
         const sortedTasks = [...allTasks].reverse();
-        const totalPages = Math.ceil(sortedTasks.length / ITEMS_PER_PAGE);
+        const totalPages = Math.ceil(sortedTasks.length / ITEMS_PER_PAGE) || 1;
+        
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         const tasksToShow = sortedTasks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+        // Vẽ các dòng có dữ liệu
         tasksToShow.forEach(task => {
             const dStart = new Date(task.start);
             const dEnd = new Date(task.end);
@@ -208,15 +207,18 @@
 
             body.innerHTML += `
                 <tr>
-                    <td class="col-info"><strong>${task.name}</strong><br><small style="color:#94a3b8">${task.dept}</small></td>
+                    <td class="col-info" title="${task.name}">
+                        <div style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">${task.name}</div>
+                        <small style="color:#94a3b8">${task.dept}</small>
+                    </td>
                     <td class="col-date">${task.start}</td>
                     <td class="col-date">${task.end}</td>
                     <td class="col-iter">
-                        <span style="font-weight:700;">${iteration}</span>
+                        <b>${iteration}</b>
                         ${isAdm ? `<button class="btn-icon btn-iter" onclick="increaseIter('${task.id}')" title="Giao lại"><i class="fa-solid fa-arrow-up"></i></button>` : ''}
                     </td>
                     <td class="col-progress">
-                        <div style="font-size:10px; text-align:right; font-weight:bold">${Math.round(percent*100)}%</div>
+                        <div style="font-size:9px; text-align:right; font-weight:700">${Math.round(percent*100)}%</div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${percent*100}%; background:${task.status==='Hoàn thành'?'#2ecc71':'#4361ee'}"></div></div>
                     </td>
                     <td class="col-status"><span class="badge ${task.status==='Hoàn thành'?'bg-done':'bg-new'}">${task.status}</span></td>
@@ -229,25 +231,20 @@
                 </tr>`;
         });
 
-        // Điền các hàng trống để bảng luôn cao đều (Giữ form không bị nhảy)
+        // VẼ DÒNG TRỐNG (QUAN TRỌNG ĐỂ GIỮ KHUNG HÌNH)
+        // Nếu trang hiện tại không đủ 5 dòng, ta vẽ thêm các dòng trắng để đẩy nút Prev/Next xuống đúng vị trí
         const emptyRows = ITEMS_PER_PAGE - tasksToShow.length;
         for (let i = 0; i < emptyRows; i++) {
             body.innerHTML += `<tr><td colspan="7">&nbsp;</td></tr>`;
         }
 
-        updatePaginationControls(totalPages);
-    }
-
-    function updatePaginationControls(totalPages) {
-        const div = document.getElementById('paginationControls');
-        const btnPrev = document.getElementById('btnPrev');
-        const btnNext = document.getElementById('btnNext');
-        const info = document.getElementById('pageInfo');
-
-        div.style.display = totalPages > 1 ? 'flex' : 'none';
-        info.innerText = `Trang ${currentPage} / ${totalPages}`;
-        btnPrev.disabled = (currentPage === 1);
-        btnNext.disabled = (currentPage === totalPages);
+        // Cập nhật nút phân trang
+        document.getElementById('pageInfo').innerText = `Trang ${currentPage} / ${totalPages}`;
+        document.getElementById('btnPrev').disabled = (currentPage === 1);
+        document.getElementById('btnNext').disabled = (currentPage === totalPages);
+        
+        // Luôn hiện panel phân trang (để giữ layout)
+        document.getElementById('paginationControls').style.display = 'flex';
     }
 
     function changePage(step) {
@@ -255,6 +252,7 @@
         renderTable();
     }
 
+    // === 4. CÁC HÀM ADMIN ===
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         document.body.className = isAdm ? 'is-admin' : 'is-client';
@@ -285,7 +283,7 @@
         const end = document.getElementById('deadline').value;
         const iter = document.getElementById('iterCount').value;
         
-        if (!name || !start || !end) return alert("Vui lòng nhập đủ thông tin!");
+        if (!name || !start || !end) return alert("Thiếu thông tin!");
         
         allTasks.push({ 
             id: Date.now().toString(), 
@@ -311,7 +309,7 @@
 
     function deleteTask(id) {
         if (!MASTER_KEY) return;
-        if (confirm("Xác nhận xóa?")) { allTasks = allTasks.filter(t => t.id !== id); saveData(); }
+        if (confirm("Xóa?")) { allTasks = allTasks.filter(t => t.id !== id); saveData(); }
     }
 
     function showLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }

@@ -13,59 +13,42 @@
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
         .container { max-width: 1250px; margin: auto; }
-        
-        /* Header & Auth */
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header-section h2 { color: var(--dark); margin: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .admin-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-auth { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+        .btn-auth { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         #btnLogin { background: var(--dark); color: white; }
         #btnLogout { background: var(--danger); color: white; display: none; }
-        
-        /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border-left: 5px solid var(--primary); }
-        .stat-card h3 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; }
         .stat-card .value { font-size: 28px; font-weight: 800; color: var(--dark); margin-top: 5px; }
-
-        /* Admin Form Layout */
         #adminForm { 
             background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow); 
-            display: grid; grid-template-columns: 25% 15% 15% 20% 15% 10%; gap: 10px; margin-bottom: 30px; 
-            align-items: end;
+            display: grid; grid-template-columns: 25% 15% 15% 20% 15% 10%; gap: 10px; margin-bottom: 30px; align-items: end;
         }
         .admin-only-input { visibility: hidden; }
         body.is-admin .admin-only-input { visibility: visible; }
-
-        input { padding: 12px; border: 1.5px solid #edf2f7; border-radius: 8px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); }
+        input { padding: 12px; border: 1.5px solid #edf2f7; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
         .btn-add { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; }
-
-        /* Table */
         .card-table { background: white; border-radius: 15px; box-shadow: var(--shadow); overflow: hidden; }
-        .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
         th { background: #f1f5f9; color: #475569; padding: 18px; text-align: left; font-size: 13px; font-weight: 700; text-transform: uppercase; }
         td { padding: 18px; border-bottom: 1px solid #edf2f7; vertical-align: middle; font-size: 14px; }
-        
         .col-info { width: 25%; } .col-date { width: 15%; } .col-progress { width: 20%; } .col-status { width: 15%; } .col-action { width: 10%; }
-
         .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 10px; transition: 0.8s width; }
         .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; color: white; display: inline-block; }
         .bg-new { background: var(--primary); } .bg-done { background: var(--success); }
-        
         .btn-group { display: flex; gap: 8px; }
         .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-done { background: var(--success); } .btn-delete { background: #fee2e2; color: var(--danger); }
         .disabled-btn { opacity: 0.2; cursor: not-allowed !important; pointer-events: none; }
-
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; }
     </style>
 </head>
 <body class="is-client">
 
-<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Đang tải dữ liệu...</div>
+<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Đang đồng bộ dữ liệu...</div>
 
 <div class="container">
     <div class="header-section">
@@ -77,8 +60,8 @@
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><h3>Tổng công việc</h3><div id="statTotal" class="value">0</div></div>
-        <div class="stat-card"><h3>Đã hoàn thành</h3><div id="statDone" class="value">0</div></div>
+        <div class="stat-card"><h3>Tổng việc</h3><div id="statTotal" class="value">0</div></div>
+        <div class="stat-card"><h3>Hoàn thành</h3><div id="statDone" class="value">0</div></div>
     </div>
 
     <div id="adminForm">
@@ -110,7 +93,7 @@
 </div>
 
 <script>
-    // === CẤU HÌNH (THAY MÃ THẬT VÀO ĐÂY) ===
+    // === ĐIỀN THÔNG SỐ THẬT CỦA BẠN ===
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     
@@ -118,50 +101,23 @@
     let allTasks = [];
     let MASTER_KEY = localStorage.getItem('my_task_admin_key');
 
+    // LUÔN dùng Read Key để tải dữ liệu nhằm đảm bảo ổn định 100%
     async function fetchData() {
         showLoading(true);
-        checkPermissions(); // Dựng giao diện Admin ngay lập tức nếu có key trong máy
-
-        const keyToUse = MASTER_KEY ? MASTER_KEY : READ_KEY;
+        checkPermissions();
         try {
             const res = await fetch(URL, {
                 method: 'GET',
-                headers: { 
-                    'X-Access-Key': keyToUse, 
-                    'X-Bin-Meta': false,
-                    'Cache-Control': 'no-cache'
-                }
+                headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false }
             });
-
-            const data = await res.json();
-            
-            // Xử lý dữ liệu trả về
-            if (data && data.tasks) {
-                allTasks = data.tasks;
-            } else if (Array.isArray(data)) {
-                allTasks = data;
-            }
-
-            renderTable();
-        } catch (err) { 
-            console.error(err);
-            // Nếu lỗi khi dùng Master Key, thử lại một lần với Read Key
-            if (MASTER_KEY) {
-                console.warn("Thử lại với quyền Read-only...");
-                fetchDataWithReadOnly();
-            }
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    async function fetchDataWithReadOnly() {
-        try {
-            const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
             const data = await res.json();
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
             renderTable();
-        } catch (e) { console.error(e); }
+        } catch (err) { 
+            console.error(err);
+            document.getElementById('taskBody').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px">Lỗi kết nối máy chủ.</td></tr>';
+        }
+        showLoading(false);
     }
 
     async function saveData() {
@@ -173,8 +129,8 @@
                 headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
                 body: JSON.stringify({ "tasks": allTasks })
             });
-            if (res.ok) renderTable();
-            else alert("Lỗi ghi dữ liệu. Hãy kiểm tra lại Master Key.");
+            if (!res.ok) throw new Error("Sai Master Key hoặc Bin bị khóa.");
+            renderTable();
         } catch (err) { alert("Lỗi: " + err.message); }
         showLoading(false);
     }
@@ -200,8 +156,6 @@
             percent = Math.max(0, Math.min(1, percent));
             if (task.status === "Hoàn thành") percent = 1;
 
-            const btnClass = isAdm ? "" : "disabled-btn";
-
             body.innerHTML += `
                 <tr>
                     <td class="col-info"><strong>${task.name}</strong><br><small style="color:#94a3b8">${task.dept}</small></td>
@@ -214,8 +168,8 @@
                     <td class="col-status"><span class="badge ${task.status==='Hoàn thành'?'bg-done':'bg-new'}">${task.status}</span></td>
                     <td class="col-action">
                         <div class="btn-group">
-                            <button class="btn-icon btn-done ${btnClass}" onclick="updateStatus('${task.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="btn-icon btn-delete ${btnClass}" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn-icon btn-done ${isAdm?'':'disabled-btn'}" onclick="updateStatus('${task.id}')"><i class="fa-solid fa-check"></i></button>
+                            <button class="btn-icon btn-delete ${isAdm?'':'disabled-btn'}" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>`;
@@ -234,7 +188,8 @@
         if (key) {
             MASTER_KEY = key;
             localStorage.setItem('my_task_admin_key', key);
-            fetchData();
+            checkPermissions();
+            renderTable(); // Cập nhật lại các nút bấm mà không cần tải lại trang
         }
     }
 
@@ -249,16 +204,8 @@
         const name = document.getElementById('taskName').value;
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('deadline').value;
-        if (!name || !start || !end) return alert("Vui lòng nhập đầy đủ thông tin!");
-        
-        allTasks.push({
-            id: Date.now().toString(),
-            name: name,
-            dept: document.getElementById('dept').value || "VP",
-            start: start,
-            end: end,
-            status: "Đang làm"
-        });
+        if (!name || !start || !end) return alert("Vui lòng nhập đủ thông tin!");
+        allTasks.push({ id: Date.now().toString(), name, dept: document.getElementById('dept').value || "VP", start, end, status: "Đang làm" });
         saveData();
         document.getElementById('taskName').value = '';
     }
@@ -266,18 +213,12 @@
     function updateStatus(id) {
         if (!MASTER_KEY) return;
         const task = allTasks.find(t => t.id === id);
-        if (task) {
-            task.status = (task.status === "Hoàn thành") ? "Đang làm" : "Hoàn thành";
-            saveData();
-        }
+        if (task) { task.status = (task.status === "Hoàn thành") ? "Đang làm" : "Hoàn thành"; saveData(); }
     }
 
     function deleteTask(id) {
         if (!MASTER_KEY) return;
-        if (confirm("Xác nhận xóa vĩnh viễn?")) {
-            allTasks = allTasks.filter(t => t.id !== id);
-            saveData();
-        }
+        if (confirm("Xác nhận xóa?")) { allTasks = allTasks.filter(t => t.id !== id); saveData(); }
     }
 
     function showLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }

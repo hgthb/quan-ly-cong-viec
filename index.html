@@ -3,180 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Công Việc</title>
+    <title>Quản Lý Tiến Độ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
             --primary: #4361ee; --success: #2ecc71; --danger: #ef476f; 
             --warning: #ffd166; --dark: #1e293b; --bg: #f1f5f9;
-            --text-main: #334155; --shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 10px; height: 100vh; box-sizing: border-box; overflow: hidden; } /* Chặn cuộn trang */
-        .container { max-width: 1100px; margin: auto; display: flex; flex-direction: column; height: 100%; }
-        
-        /* 1. HEADER (Siêu gọn) */
-        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
-        .header-section h2 { color: var(--dark); margin: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .admin-controls { display: flex; gap: 8px; }
-        .btn-auth { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; font-size: 11px; display: flex; align-items: center; gap: 5px; }
-        #btnLogin { background: var(--dark); color: white; }
-        #btnLogout { background: var(--danger); color: white; display: none; }
-        
-        /* 2. STATS (Nằm ngang, bé xíu) */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; flex-shrink: 0; }
-        .stat-card { 
-            background: white; padding: 6px 15px; border-radius: 6px; box-shadow: var(--shadow); border-left: 3px solid var(--primary); 
-            display: flex; align-items: center; justify-content: space-between; height: 36px;
+        /* Ép toàn bộ trang vào 1 màn hình */
+        body { 
+            font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 5px 10px; 
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
         }
-        .stat-card h3 { margin: 0; font-size: 11px; color: #64748b; text-transform: uppercase; }
-        .stat-card .value { font-size: 16px; font-weight: 800; color: var(--dark); }
+        .container { max-width: 1200px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
 
-        /* 3. FORM (1 dòng duy nhất) */
+        /* HEADER & STATS GỘP CHUNG (CỰC MỎNG) */
+        .top-bar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: white; padding: 5px 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 5px; flex-shrink: 0;
+        }
+        .brand { font-size: 16px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 5px; }
+        .stats-mini { display: flex; gap: 20px; font-size: 13px; font-weight: 600; }
+        .stats-mini span b { color: var(--primary); font-size: 15px; }
+
+        /* FORM NHẬP LIỆU (CHỈ 1 DÒNG DUY NHẤT) */
         #adminForm { 
-            background: white; padding: 8px 15px; border-radius: 8px; box-shadow: var(--shadow); 
-            display: grid; grid-template-columns: 22% 13% 13% 8% 15% 15% 8%; gap: 6px; margin-bottom: 8px; flex-shrink: 0; align-items: center;
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 0.5fr 1fr 1fr; gap: 5px; 
+            background: #fff; padding: 5px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center;
+            display: none; /* Mặc định ẩn, hiện khi là admin */
         }
-        .admin-only-input { visibility: hidden; }
-        body.is-admin .admin-only-input { visibility: visible; }
-        input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; height: 30px; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 0; height: 30px; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%; font-size: 11px; }
+        body.is-admin #adminForm { display: grid; }
+        input { height: 28px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
+        .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
 
-        /* 4. TABLE (Cố định cứng kích thước) */
-        .card-table { background: white; border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; flex-grow: 1; display: flex; flex-direction: column; }
-        .table-responsive { width: 100%; }
+        /* BẢNG DỮ LIỆU CỐ ĐỊNH CHIỀU CAO */
+        .main-content { 
+            background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
+        }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        
-        th { background: #f8fafc; color: #475569; padding: 0 10px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; height: 35px; }
-        
-        /* Dòng dữ liệu: Cố định cao 40px */
-        td { padding: 0 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 13px; height: 40px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* Cột */
-        .col-info { width: 22%; } .col-date { width: 13%; } .col-iter { width: 8%; text-align: center; } 
-        .col-progress { width: 18%; } .col-status { width: 12%; } .col-action { width: 14%; }
+        th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
+        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 38px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 5px; margin-top: 3px; }
-        .progress-fill { height: 100%; border-radius: 10px; }
-        .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; color: white; display: inline-block; }
-        .bg-new { background: var(--primary); } .bg-done { background: var(--success); }
-        
-        .btn-group { display: flex; gap: 4px; }
-        .btn-icon { width: 24px; height: 24px; border-radius: 4px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; }
-        .btn-done { background: var(--success); } .btn-delete { background: #fee2e2; color: var(--danger); }
-        .btn-iter { background: var(--warning); color: var(--dark); width: 18px; height: 18px; font-size: 9px; margin-left: 4px; } 
-        .disabled-btn { opacity: 0.2; cursor: not-allowed !important; pointer-events: none; }
+        /* Độ rộng các cột */
+        .col-task { width: 20%; } .col-date { width: 12%; } .col-iter { width: 7%; text-align: center; }
+        .col-prog { width: 18%; } .col-status { width: 12%; } .col-act { width: 12%; }
 
-        /* 5. PHÂN TRANG (Sát đáy) */
-        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px 0 0 0; flex-shrink: 0; }
-        .btn-page { background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; color: var(--text-main); display: flex; align-items: center; gap: 4px; }
-        .btn-page:disabled { opacity: 0.5; background: #f1f5f9; }
-        .page-info { font-size: 12px; font-weight: 600; color: #64748b; }
+        /* Component nhỏ */
+        .progress-bg { width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 3px; }
+        .progress-fill { height: 100%; border-radius: 2px; transition: 0.3s; }
+        .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; color: #fff; font-weight: 700; }
+        .btn-sm { width: 24px; height: 24px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 2px; }
+        .btn-iter { background: var(--warning); color: #000; width: 16px; height: 16px; font-size: 8px; padding: 0; }
 
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; }
+        /* PHÂN TRANG (DƯỚI CÙNG) */
+        .pagination { 
+            display: flex; justify-content: center; align-items: center; gap: 15px; 
+            padding: 8px 0; background: var(--bg); flex-shrink: 0;
+        }
+        .btn-p { padding: 4px 12px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Auth buttons */
+        .auth-btns { display: flex; gap: 5px; }
+        .btn-login { background: #334155; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     </style>
 </head>
 <body class="is-client">
 
-<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Loading...</div>
-
 <div class="container">
-    <div class="header-section">
-        <h2><i class="fa-solid fa-clipboard-list"></i> QUẢN LÝ TIẾN ĐỘ</h2>
-        <div class="admin-controls">
-            <button id="btnLogin" class="btn-auth" onclick="loginAdmin()"><i class="fa-solid fa-key"></i> Login</button>
-            <button id="btnLogout" class="btn-auth" onclick="logoutAdmin()"><i class="fa-solid fa-sign-out"></i> Logout</button>
+    <div class="top-bar">
+        <div class="brand"><i class="fa-solid fa-list-check"></i> QUẢN LÝ TIẾN ĐỘ</div>
+        <div class="stats-mini">
+            <span>TỔNG: <b id="statTotal">0</b></span>
+            <span>XONG: <b id="statDone">0</b></span>
         </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card"><h3>Tổng việc</h3><div id="statTotal" class="value">0</div></div>
-        <div class="stat-card"><h3>Hoàn thành</h3><div id="statDone" class="value">0</div></div>
+        <div class="auth-btns">
+            <button id="btnLogin" class="btn-login" onclick="loginAdmin()">Admin</button>
+            <button id="btnLogout" class="btn-login" style="background:var(--danger); display:none" onclick="logoutAdmin()">Thoát</button>
+        </div>
     </div>
 
     <div id="adminForm">
-        <div class="admin-only-input"><input type="text" id="taskName" placeholder="Tên việc..."></div>
-        <div class="admin-only-input"><input type="date" id="startDate"></div>
-        <div class="admin-only-input"><input type="date" id="deadline"></div>
-        <div class="admin-only-input"><input type="number" id="iterCount" value="1" min="1" title="Lần"></div>
-        <div class="admin-only-input"><input type="text" id="dept" placeholder="Phòng..."></div>
-        <div class="admin-only-input"></div> 
-        <div class="admin-only-input"><button class="btn-add" onclick="addTask()">THÊM</button></div>
+        <input type="text" id="taskName" placeholder="Tên việc...">
+        <input type="text" id="dept" placeholder="Phòng ban...">
+        <input type="date" id="startDate">
+        <input type="date" id="deadline">
+        <input type="number" id="iterCount" value="1" title="Lần giao">
+        <button class="btn-add" onclick="addTask()">THÊM</button>
     </div>
 
-    <div class="card-table">
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="col-info">Việc / Phòng</th>
-                        <th class="col-date">Bắt đầu</th>
-                        <th class="col-date">Hạn chót</th>
-                        <th class="col-iter">Lần</th>
-                        <th class="col-progress">Tiến độ</th>
-                        <th class="col-status">Trạng thái</th>
-                        <th class="col-action">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody id="taskBody"></tbody>
-            </table>
-        </div>
+    <div class="main-content">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-task">Việc / Phòng</th>
+                    <th class="col-date">Bắt đầu</th>
+                    <th class="col-date">Hạn chót</th>
+                    <th class="col-iter">Lần</th>
+                    <th class="col-prog">Tiến độ</th>
+                    <th class="col-status">Trạng thái</th>
+                    <th class="col-act">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="taskBody">
+                </tbody>
+        </table>
     </div>
 
-    <div class="pagination-container" id="paginationControls">
-        <button class="btn-page" id="btnPrev" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> Trước</button>
-        <span class="page-info" id="pageInfo">Trang 1</span>
-        <button class="btn-page" id="btnNext" onclick="changePage(1)">Sau <i class="fa-solid fa-chevron-right"></i></button>
+    <div class="pagination">
+        <button class="btn-p" id="btnPrev" onclick="changePage(-1)"><i class="fa-solid fa-arrow-left"></i> Trước</button>
+        <span id="pageInfo" style="font-size:12px; font-weight:700">Trang 1/1</span>
+        <button class="btn-p" id="btnNext" onclick="changePage(1)">Sau <i class="fa-solid fa-arrow-right"></i></button>
     </div>
 </div>
 
 <script>
-    // === 1. CẤU HÌNH ===
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
-    
     const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
+
     let allTasks = [];
     let MASTER_KEY = localStorage.getItem('my_task_admin_key');
-
-    // Phân trang
     let currentPage = 1;
-    const ITEMS_PER_PAGE = 5; // Cố định 5 dòng
+    const PAGE_SIZE = 5;
 
-    // === 2. XỬ LÝ DỮ LIỆU ===
     async function fetchData() {
-        showLoading(true);
         checkPermissions();
         try {
-            const res = await fetch(URL, {
-                method: 'GET',
-                headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false }
-            });
+            const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
             const data = await res.json();
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
-            currentPage = 1; 
             renderTable();
-        } catch (err) { 
-            console.error(err);
-        }
-        showLoading(false);
+        } catch (e) { console.error("Lỗi tải dữ liệu"); }
     }
 
-    async function saveData() {
-        if (!MASTER_KEY) return;
-        showLoading(true);
-        try {
-            const res = await fetch(URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
-                body: JSON.stringify({ "tasks": allTasks })
-            });
-            if (!res.ok) throw new Error("Lỗi quyền ghi!");
-            renderTable();
-        } catch (err) { alert(err.message); }
-        showLoading(false);
-    }
-
-    // === 3. RENDER TABLE (LOGIC QUAN TRỌNG) ===
     function renderTable() {
         const body = document.getElementById('taskBody');
         body.innerHTML = '';
@@ -186,133 +147,87 @@
         document.getElementById('statTotal').innerText = allTasks.length;
         document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
 
-        // Xử lý phân trang
-        const sortedTasks = [...allTasks].reverse();
-        const totalPages = Math.ceil(sortedTasks.length / ITEMS_PER_PAGE) || 1;
-        
+        const sorted = [...allTasks].reverse();
+        const totalPages = Math.ceil(sorted.length / PAGE_SIZE) || 1;
         if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
 
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const tasksToShow = sortedTasks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const pageData = sorted.slice(start, start + PAGE_SIZE);
 
-        // Vẽ các dòng có dữ liệu
-        tasksToShow.forEach(task => {
-            const dStart = new Date(task.start);
-            const dEnd = new Date(task.end);
-            let percent = (dEnd > dStart) ? (now - dStart) / (dEnd - dStart) : 0;
-            percent = Math.max(0, Math.min(1, percent));
-            if (task.status === "Hoàn thành") percent = 1;
-            const iteration = task.iteration || 1;
-
+        pageData.forEach(t => {
+            const s = new Date(t.start), e = new Date(t.end);
+            let p = (e > s) ? (now - s) / (e - s) : 0;
+            p = Math.max(0, Math.min(1, (t.status === "Hoàn thành" ? 1 : p)));
+            
             body.innerHTML += `
                 <tr>
-                    <td class="col-info" title="${task.name}">
-                        <div style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">${task.name}</div>
-                        <small style="color:#94a3b8">${task.dept}</small>
+                    <td><b>${t.name}</b><br><small style="color:#999">${t.dept}</small></td>
+                    <td>${t.start}</td>
+                    <td>${t.end}</td>
+                    <td style="text-align:center">
+                        ${t.iteration || 1}
+                        ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>`:''}
                     </td>
-                    <td class="col-date">${task.start}</td>
-                    <td class="col-date">${task.end}</td>
-                    <td class="col-iter">
-                        <b>${iteration}</b>
-                        ${isAdm ? `<button class="btn-icon btn-iter" onclick="increaseIter('${task.id}')" title="Giao lại"><i class="fa-solid fa-arrow-up"></i></button>` : ''}
+                    <td>
+                        <div style="font-size:9px; font-weight:bold">${Math.round(p*100)}%</div>
+                        <div class="progress-bg"><div class="progress-fill" style="width:${p*100}%; background:${p>=1?'#2ecc71':'#4361ee'}"></div></div>
                     </td>
-                    <td class="col-progress">
-                        <div style="font-size:9px; text-align:right; font-weight:700">${Math.round(percent*100)}%</div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:${percent*100}%; background:${task.status==='Hoàn thành'?'#2ecc71':'#4361ee'}"></div></div>
-                    </td>
-                    <td class="col-status"><span class="badge ${task.status==='Hoàn thành'?'bg-done':'bg-new'}">${task.status}</span></td>
-                    <td class="col-action">
-                        <div class="btn-group">
-                            <button class="btn-icon btn-done ${isAdm?'':'disabled-btn'}" onclick="updateStatus('${task.id}')"><i class="fa-solid fa-check"></i></button>
-                            <button class="btn-icon btn-delete ${isAdm?'':'disabled-btn'}" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+                    <td><span class="badge" style="background:${t.status==='Hoàn thành'?'#2ecc71':'#4361ee'}">${t.status}</span></td>
+                    <td>
+                        <button class="btn-sm" style="background:#2ecc71" onclick="updateStatus('${t.id}')"><i class="fa-solid fa-check"></i></button>
+                        <button class="btn-sm" style="background:#ef476f" onclick="deleteTask('${t.id}')"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
 
-        // VẼ DÒNG TRỐNG (QUAN TRỌNG ĐỂ GIỮ KHUNG HÌNH)
-        // Nếu trang hiện tại không đủ 5 dòng, ta vẽ thêm các dòng trắng để đẩy nút Prev/Next xuống đúng vị trí
-        const emptyRows = ITEMS_PER_PAGE - tasksToShow.length;
-        for (let i = 0; i < emptyRows; i++) {
-            body.innerHTML += `<tr><td colspan="7">&nbsp;</td></tr>`;
+        // Vẽ hàng trống để giữ chiều cao bảng không đổi
+        for (let i = pageData.length; i < PAGE_SIZE; i++) {
+            body.innerHTML += `<tr style="height:38px"><td colspan="7"></td></tr>`;
         }
 
-        // Cập nhật nút phân trang
-        document.getElementById('pageInfo').innerText = `Trang ${currentPage} / ${totalPages}`;
-        document.getElementById('btnPrev').disabled = (currentPage === 1);
-        document.getElementById('btnNext').disabled = (currentPage === totalPages);
-        
-        // Luôn hiện panel phân trang (để giữ layout)
-        document.getElementById('paginationControls').style.display = 'flex';
+        document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
+        document.getElementById('btnPrev').disabled = currentPage === 1;
+        document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    function changePage(step) {
-        currentPage += step;
-        renderTable();
-    }
-
-    // === 4. CÁC HÀM ADMIN ===
+    // Các hàm xử lý (addTask, updateStatus, deleteTask, incIter, login/logout giống phiên bản trước)
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         document.body.className = isAdm ? 'is-admin' : 'is-client';
-        document.getElementById('btnLogout').style.display = isAdm ? 'inline-block' : 'none';
-        document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'flex';
+        document.getElementById('btnLogout').style.display = isAdm ? 'block' : 'none';
+        document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'block';
     }
 
     function loginAdmin() {
-        const key = prompt("Nhập MASTER KEY:");
-        if (key) {
-            MASTER_KEY = key;
-            localStorage.setItem('my_task_admin_key', key);
-            checkPermissions();
-            renderTable();
-        }
+        const k = prompt("Master Key:");
+        if(k) { MASTER_KEY = k; localStorage.setItem('my_task_admin_key', k); fetchData(); }
     }
 
-    function logoutAdmin() {
-        localStorage.removeItem('my_task_admin_key');
-        MASTER_KEY = null;
-        location.reload();
+    function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
+
+    async function saveData() {
+        try {
+            await fetch(URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                body: JSON.stringify({ tasks: allTasks })
+            });
+            renderTable();
+        } catch (e) { alert("Lỗi lưu dữ liệu"); }
     }
 
     function addTask() {
-        if (!MASTER_KEY) return;
-        const name = document.getElementById('taskName').value;
-        const start = document.getElementById('startDate').value;
-        const end = document.getElementById('deadline').value;
-        const iter = document.getElementById('iterCount').value;
-        
-        if (!name || !start || !end) return alert("Thiếu thông tin!");
-        
-        allTasks.push({ 
-            id: Date.now().toString(), 
-            name, dept: document.getElementById('dept').value || "VP", 
-            start, end, iteration: parseInt(iter) || 1, status: "Đang làm" 
-        });
+        const n = document.getElementById('taskName').value, s = document.getElementById('startDate').value, e = document.getElementById('deadline').value;
+        if(!n || !s || !e) return alert("Nhập đủ tin!");
+        allTasks.push({ id: Date.now().toString(), name: n, dept: document.getElementById('dept').value, start: s, end: e, iteration: parseInt(document.getElementById('iterCount').value), status: "Đang làm" });
         saveData();
-        document.getElementById('taskName').value = '';
-        document.getElementById('iterCount').value = '1';
     }
 
-    function increaseIter(id) {
-        if (!MASTER_KEY) return;
-        const task = allTasks.find(t => t.id === id);
-        if (task) { task.iteration = (task.iteration || 1) + 1; saveData(); }
-    }
+    function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }
+    function updateStatus(id) { if(!MASTER_KEY) return; const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
+    function deleteTask(id) { if(!MASTER_KEY || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
+    function changePage(v) { currentPage += v; renderTable(); }
 
-    function updateStatus(id) {
-        if (!MASTER_KEY) return;
-        const task = allTasks.find(t => t.id === id);
-        if (task) { task.status = (task.status === "Hoàn thành") ? "Đang làm" : "Hoàn thành"; saveData(); }
-    }
-
-    function deleteTask(id) {
-        if (!MASTER_KEY) return;
-        if (confirm("Xóa?")) { allTasks = allTasks.filter(t => t.id !== id); saveData(); }
-    }
-
-    function showLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
     window.onload = fetchData;
 </script>
 </body>

@@ -13,58 +13,71 @@
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; }
         .container { max-width: 1250px; margin: auto; }
+        
+        /* Header & Auth */
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header-section h2 { color: var(--dark); margin: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        
         .admin-controls { display: flex; align-items: center; gap: 10px; }
-        .btn-auth { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .btn-auth { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
         #btnLogin { background: var(--dark); color: white; }
         #btnLogout { background: var(--danger); color: white; display: none; }
         
+        /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border-left: 5px solid var(--primary); }
+        .stat-card h3 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; }
         .stat-card .value { font-size: 28px; font-weight: 800; color: var(--dark); margin-top: 5px; }
 
-        /* Form Nhập Liệu - Luôn giữ Grid để thẳng hàng với bảng */
+        /* Admin Form - Căn chỉnh grid thẳng hàng với bảng bên dưới */
         #adminForm { 
             background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow); 
             display: grid; grid-template-columns: 25% 15% 15% 20% 15% 10%; gap: 10px; margin-bottom: 30px; 
             align-items: end;
         }
-        /* Ẩn các ô input nếu không phải admin nhưng vẫn giữ layout */
+        /* Mặc định ẩn các ô nhập liệu cho Client */
         .admin-only-input { visibility: hidden; }
-        .is-admin .admin-only-input { visibility: visible; }
+        body.is-admin .admin-only-input { visibility: visible; }
 
-        input { padding: 12px; border: 1.5px solid #edf2f7; border-radius: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        input { padding: 12px; border: 1.5px solid #edf2f7; border-radius: 8px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); }
         .btn-add { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; }
 
-        /* Bảng Dữ Liệu */
+        /* Table & Columns */
         .card-table { background: white; border-radius: 15px; box-shadow: var(--shadow); overflow: hidden; }
+        .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
         th { background: #f1f5f9; color: #475569; padding: 18px; text-align: left; font-size: 13px; font-weight: 700; text-transform: uppercase; }
         td { padding: 18px; border-bottom: 1px solid #edf2f7; vertical-align: middle; font-size: 14px; }
         
-        /* Độ rộng cột */
-        .col-info { width: 25%; } .col-date { width: 15%; } .col-progress { width: 20%; } .col-status { width: 15%; } .col-action { width: 10%; }
+        /* Định nghĩa độ rộng cột cố định */
+        .col-info { width: 25%; }
+        .col-date { width: 15%; }
+        .col-progress { width: 20%; }
+        .col-status { width: 15%; }
+        .col-action { width: 10%; }
 
+        /* Progress & Badges */
         .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 10px; transition: 0.8s width; }
         .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; color: white; display: inline-block; }
-        .bg-new { background: var(--primary); } .bg-done { background: var(--success); }
+        .bg-new { background: var(--primary); } 
+        .bg-done { background: var(--success); }
         
+        /* Action Buttons */
         .btn-group { display: flex; gap: 8px; }
-        .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-done { background: var(--success); } .btn-delete { background: #fee2e2; color: var(--danger); }
+        .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-done { background: var(--success); } 
+        .btn-delete { background: #fee2e2; color: var(--danger); }
         
-        /* Trạng thái mờ cho client */
-        .disabled-btn { opacity: 0.3; cursor: not-allowed !important; pointer-events: none; }
+        /* Hiệu ứng mờ cho Client */
+        .disabled-btn { opacity: 0.2; cursor: not-allowed !important; pointer-events: none; }
 
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; }
     </style>
 </head>
 <body class="is-client">
 
-<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Đang xử lý...</div>
+<div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> &nbsp; Đang xử lý dữ liệu...</div>
 
 <div class="container">
     <div class="header-section">
@@ -110,13 +123,15 @@
 </div>
 
 <script>
+    // === 1. CẤU HÌNH (THAY THẾ MÃ CỦA BẠN VÀO ĐÂY) ===
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     
-    const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+    const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
     let allTasks = [];
     let MASTER_KEY = localStorage.getItem('my_task_admin_key');
 
+    // === 2. TẢI DỮ LIỆU TỪ SERVER ===
     async function fetchData() {
         showLoading(true);
         const keyToUse = MASTER_KEY ? MASTER_KEY : READ_KEY;
@@ -126,30 +141,46 @@
                 headers: { 'X-Access-Key': keyToUse, 'X-Bin-Meta': false }
             });
             const data = await res.json();
-            allTasks = (data && data.tasks) ? data.tasks : [];
+            
+            // Xử lý dữ liệu trả về theo cấu trúc {"tasks": []}
+            if (data && data.tasks) {
+                allTasks = data.tasks;
+            } else if (Array.isArray(data)) {
+                allTasks = data;
+            }
+
             renderTable();
             checkPermissions();
         } catch (err) { 
             console.error(err);
-            document.getElementById('taskBody').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px">Lỗi tải dữ liệu.</td></tr>';
+            document.getElementById('taskBody').innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px">Lỗi kết nối máy chủ.</td></tr>';
         }
         showLoading(false);
     }
 
+    // === 3. LƯU DỮ LIỆU LÊN SERVER ===
     async function saveData() {
         if (!MASTER_KEY) return;
         showLoading(true);
         try {
-            await fetch(URL, {
+            const res = await fetch(URL, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-Master-Key': MASTER_KEY 
+                },
                 body: JSON.stringify({ "tasks": allTasks })
             });
-            renderTable();
-        } catch (err) { alert("Lỗi lưu: " + err.message); }
+            if (res.ok) {
+                renderTable();
+            } else {
+                alert("Lưu thất bại! Hãy kiểm tra lại quyền Admin.");
+            }
+        } catch (err) { alert("Lỗi: " + err.message); }
         showLoading(false);
     }
 
+    // === 4. HIỂN THỊ DỮ LIỆU RA BẢNG ===
     function renderTable() {
         const body = document.getElementById('taskBody');
         body.innerHTML = '';
@@ -160,7 +191,7 @@
         document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
 
         if (allTasks.length === 0) {
-            body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px">Chưa có dữ liệu.</td></tr>';
+            body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px">Chưa có dữ liệu công việc.</td></tr>';
             return;
         }
 
@@ -171,7 +202,7 @@
             percent = Math.max(0, Math.min(1, percent));
             if (task.status === "Hoàn thành") percent = 1;
 
-            // Class để làm mờ nút nếu không phải admin
+            // Làm mờ nút nếu không phải admin
             const btnClass = isAdm ? "" : "disabled-btn";
 
             body.innerHTML += `
@@ -194,25 +225,28 @@
         });
     }
 
+    // === 5. QUẢN LÝ ĐĂNG NHẬP / PHÂN QUYỀN ===
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         if (isAdm) {
-            document.body.classList.replace('is-client', 'is-admin');
+            document.body.classList.add('is-admin');
+            document.body.classList.remove('is-client');
             document.getElementById('btnLogout').style.display = 'inline-block';
             document.getElementById('btnLogin').style.display = 'none';
         } else {
-            document.body.classList.replace('is-admin', 'is-client');
+            document.body.classList.add('is-client');
+            document.body.classList.remove('is-admin');
             document.getElementById('btnLogout').style.display = 'none';
             document.getElementById('btnLogin').style.display = 'flex';
         }
     }
 
     function loginAdmin() {
-        const key = prompt("Nhập MASTER KEY:");
+        const key = prompt("Nhập MASTER KEY để truy cập quyền quản trị:");
         if (key) {
             MASTER_KEY = key;
             localStorage.setItem('my_task_admin_key', key);
-            fetchData();
+            fetchData(); // Tải lại để áp dụng key mới
         }
     }
 
@@ -222,6 +256,7 @@
         location.reload();
     }
 
+    // === 6. CÁC THAO TÁC XỬ LÝ DỮ LIỆU ===
     function addTask() {
         if (!MASTER_KEY) return;
         const name = document.getElementById('taskName').value;
@@ -232,7 +267,7 @@
         allTasks.push({
             id: Date.now().toString(),
             name: name,
-            dept: document.getElementById('dept').value || "VP",
+            dept: document.getElementById('dept').value || "Chưa rõ",
             start: start,
             end: end,
             status: "Đang làm"
@@ -252,15 +287,16 @@
 
     function deleteTask(id) {
         if (!MASTER_KEY) return;
-        if (confirm("Xóa công việc này?")) {
+        if (confirm("Xác nhận xóa vĩnh viễn công việc này?")) {
             allTasks = allTasks.filter(t => t.id !== id);
             saveData();
         }
     }
 
     function showLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+    
+    // Chạy tải dữ liệu ngay khi mở trang
     window.onload = fetchData;
 </script>
 </body>
 </html>
-

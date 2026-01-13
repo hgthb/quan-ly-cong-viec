@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ</title>
+    <title>Quản Lý Tiến Độ - Slim 9.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -43,7 +43,9 @@
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
-        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 38px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Cố định chiều cao dòng thấp hơn để đủ 9 dòng */
+        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 35px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Độ rộng các cột */
         .col-task { width: 20%; } .col-date { width: 12%; } .col-iter { width: 7%; text-align: center; }
@@ -119,6 +121,7 @@
 </div>
 
 <script>
+    // === CẤU HÌNH ===
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
@@ -126,7 +129,7 @@
     let allTasks = [];
     let MASTER_KEY = localStorage.getItem('my_task_admin_key');
     let currentPage = 1;
-    const PAGE_SIZE = 5;
+    const PAGE_SIZE = 9; // ĐÃ CẬP NHẬT TỪ 5 LÊN 9
 
     async function fetchData() {
         checkPermissions();
@@ -180,9 +183,9 @@
                 </tr>`;
         });
 
-        // Vẽ hàng trống để giữ chiều cao bảng không đổi
+        // Vẽ hàng trống để giữ chiều cao bảng không đổi cho đủ 9 dòng
         for (let i = pageData.length; i < PAGE_SIZE; i++) {
-            body.innerHTML += `<tr style="height:38px"><td colspan="7"></td></tr>`;
+            body.innerHTML += `<tr style="height:35px"><td colspan="7"></td></tr>`;
         }
 
         document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
@@ -190,7 +193,6 @@
         document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    // Các hàm xử lý (addTask, updateStatus, deleteTask, incIter, login/logout giống phiên bản trước)
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         document.body.className = isAdm ? 'is-admin' : 'is-client';
@@ -221,6 +223,7 @@
         if(!n || !s || !e) return alert("Nhập đủ tin!");
         allTasks.push({ id: Date.now().toString(), name: n, dept: document.getElementById('dept').value, start: s, end: e, iteration: parseInt(document.getElementById('iterCount').value), status: "Đang làm" });
         saveData();
+        document.getElementById('taskName').value = '';
     }
 
     function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }

@@ -20,24 +20,45 @@
         .btn-auth { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         #btnLogin { background: var(--dark); color: white; }
         #btnLogout { background: var(--danger); color: white; display: none; }
+        
+        /* Dashboard Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border-left: 5px solid var(--primary); }
+        .stat-card h3 { margin: 0; font-size: 13px; color: #888; text-transform: uppercase; }
         .stat-card .value { font-size: 28px; font-weight: 800; color: var(--dark); margin-top: 5px; }
-        #adminForm { background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow); display: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+
+        /* Form Nhập Liệu - Căn chỉnh lại để thẳng hàng với cột bảng */
+        #adminForm { 
+            background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow); 
+            display: none; grid-template-columns: 25% 15% 15% 20% 15% 10%; gap: 10px; margin-bottom: 30px; 
+            align-items: end;
+        }
         input { padding: 12px; border: 1.5px solid #edf2f7; border-radius: 8px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; }
+
+        /* Bảng Dữ Liệu */
         .card-table { background: white; border-radius: 15px; box-shadow: var(--shadow); overflow: hidden; }
         .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; table-layout: fixed; }
         th { background: #f1f5f9; color: #475569; padding: 18px; text-align: left; font-size: 13px; font-weight: 700; text-transform: uppercase; }
         td { padding: 18px; border-bottom: 1px solid #edf2f7; vertical-align: middle; font-size: 14px; word-wrap: break-word; }
+        
+        /* Độ rộng cố định cho từng cột để thẳng hàng tuyệt đối */
+        .col-info { width: 25%; }
+        .col-date { width: 15%; }
+        .col-progress { width: 20%; }
+        .col-status { width: 15%; }
+        .col-action { width: 10%; }
+
         .progress-bar { width: 100%; background: #e2e8f0; border-radius: 10px; height: 8px; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 10px; transition: 0.8s width; }
         .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; color: white; display: inline-block; }
         .bg-new { background: var(--primary); } .bg-done { background: var(--success); }
+        
         .btn-group { display: flex; gap: 8px; }
-        .btn-icon { width: 35px; height: 35px; border-radius: 8px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-done { background: var(--success); } .btn-delete { background: #fee2e2; color: var(--danger); }
+        
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; }
     </style>
 </head>
@@ -49,23 +70,23 @@
     <div class="header-section">
         <h2><i class="fa-solid fa-clipboard-list"></i> QUẢN LÝ TIẾN ĐỘ</h2>
         <div class="admin-controls">
-            <span id="adminBadge" class="admin-badge">ADMIN</span>
+            <span id="adminBadge" class="admin-badge">ADMIN MODE</span>
             <button id="btnLogin" class="btn-auth" onclick="loginAdmin()"><i class="fa-solid fa-key"></i> Đăng nhập Admin</button>
             <button id="btnLogout" class="btn-auth" onclick="logoutAdmin()"><i class="fa-solid fa-sign-out"></i> Thoát</button>
         </div>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><h3>Tổng việc</h3><div id="statTotal" class="value">0</div></div>
-        <div class="stat-card"><h3>Đã xong</h3><div id="statDone" class="value">0</div></div>
+        <div class="stat-card"><h3>Tổng công việc</h3><div id="statTotal" class="value">0</div></div>
+        <div class="stat-card"><h3>Đã hoàn thành</h3><div id="statDone" class="value">0</div></div>
     </div>
 
     <div id="adminForm">
         <input type="text" id="taskName" placeholder="Tên việc...">
-        <input type="text" id="dept" placeholder="Phòng ban...">
         <input type="date" id="startDate">
         <input type="date" id="deadline">
-        <button class="btn-add" onclick="addTask()">THÊM MỚI</button>
+        <input type="text" id="dept" placeholder="Phòng ban...">
+        <div></div> <button class="btn-add" onclick="addTask()">THÊM</button>
     </div>
 
     <div class="card-table">
@@ -73,16 +94,16 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 25%">Việc / Phòng</th>
-                        <th style="width: 15%">Bắt đầu</th>
-                        <th style="width: 15%">Hạn chót</th>
-                        <th style="width: 20%">Tiến độ</th>
-                        <th style="width: 15%">Trạng thái</th>
-                        <th id="actionHeader" style="width: 10%; display:none">Thao tác</th>
+                        <th class="col-info">Việc / Phòng</th>
+                        <th class="col-date">Bắt đầu</th>
+                        <th class="col-date">Hạn chót</th>
+                        <th class="col-progress">Tiến độ</th>
+                        <th class="col-status">Trạng thái</th>
+                        <th id="actionHeader" class="col-action" style="display:none">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="taskBody">
-                    <tr><td colspan="6" style="text-align:center; padding: 50px;">Đang tải...</td></tr>
+                    <tr><td colspan="6" style="text-align:center; padding: 50px;">Đang tải dữ liệu...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -90,9 +111,9 @@
 </div>
 
 <script>
-    // === THAY THÔNG SỐ CỦA BẠN VÀO ĐÂY ===
-    const BIN_ID = '6965ac34d0ea881f4067e559'; 
-    const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
+    // === Cấu hình JSONBin ===
+    const BIN_ID = 'DÁN_BIN_ID_CỦA_BẠN'; 
+    const READ_KEY = 'DÁN_ACCESS_KEY_READ_ONLY_CỦA_BẠN';
     
     const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     let allTasks = [];
@@ -107,13 +128,10 @@
                 headers: { 'X-Access-Key': keyToUse, 'X-Bin-Meta': false }
             });
             const data = await res.json();
-            // Cấu trúc {"tasks": []}
             allTasks = (data && data.tasks) ? data.tasks : [];
             renderTable();
             checkPermissions();
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
         showLoading(false);
     }
 
@@ -127,7 +145,7 @@
                 body: JSON.stringify({ "tasks": allTasks })
             });
             renderTable();
-        } catch (err) { alert("Lỗi: " + err.message); }
+        } catch (err) { alert("Lỗi lưu: " + err.message); }
         showLoading(false);
     }
 
@@ -153,15 +171,15 @@
 
             body.innerHTML += `
                 <tr>
-                    <td><strong>${task.name}</strong><br><small>${task.dept}</small></td>
-                    <td>${task.start}</td>
-                    <td>${task.end}</td>
-                    <td>
-                        <div style="font-size:10px; text-align:right">${Math.round(percent*100)}%</div>
+                    <td class="col-info"><strong>${task.name}</strong><br><small style="color:#94a3b8">${task.dept}</small></td>
+                    <td class="col-date">${task.start}</td>
+                    <td class="col-date">${task.end}</td>
+                    <td class="col-progress">
+                        <div style="font-size:10px; text-align:right; font-weight:bold">${Math.round(percent*100)}%</div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${percent*100}%; background:${task.status==='Hoàn thành'?'#2ecc71':'#4361ee'}"></div></div>
                     </td>
-                    <td><span class="badge ${task.status==='Hoàn thành'?'bg-done':'bg-new'}">${task.status}</span></td>
-                    ${MASTER_KEY ? `<td><div class="btn-group">
+                    <td class="col-status"><span class="badge ${task.status==='Hoàn thành'?'bg-done':'bg-new'}">${task.status}</span></td>
+                    ${MASTER_KEY ? `<td class="col-action"><div class="btn-group">
                         <button class="btn-icon btn-done" onclick="updateStatus('${task.id}')"><i class="fa-solid fa-check"></i></button>
                         <button class="btn-icon btn-delete" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
                     </div></td>` : ''}
@@ -172,9 +190,8 @@
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         document.getElementById('adminForm').style.display = isAdm ? 'grid' : 'none';
-        document.getElementById('adminBadge').style.display = isAdm ? 'inline-block' : 'none';
+        document.getElementById( 'adminBadge').style.display = isAdm ? 'inline-block' : 'none';
         document.getElementById('btnLogout').style.display = isAdm ? 'inline-block' : 'none';
-        document.getElementById('btnLogin').style.display = isAdm ? 'flex' : 'flex'; // Luôn hiện để có thể đổi key nếu muốn
         document.getElementById('actionHeader').style.display = isAdm ? 'table-cell' : 'none';
     }
 
@@ -195,17 +212,21 @@
 
     function addTask() {
         const name = document.getElementById('taskName').value;
+        const start = document.getElementById('startDate').value;
         const end = document.getElementById('deadline').value;
-        if (!name || !end) return alert("Thiếu thông tin!");
+        if (!name || !start || !end) return alert("Vui lòng nhập đầy đủ thông tin!");
+        
         allTasks.push({
             id: Date.now().toString(),
             name: name,
             dept: document.getElementById('dept').value || "VP",
-            start: document.getElementById('startDate').value || "-",
+            start: start,
             end: end,
             status: "Đang làm"
         });
         saveData();
+        // Reset form
+        document.getElementById('taskName').value = '';
     }
 
     function updateStatus(id) {
@@ -217,7 +238,7 @@
     }
 
     function deleteTask(id) {
-        if (confirm("Xóa việc này?")) {
+        if (confirm("Xóa công việc này?")) {
             allTasks = allTasks.filter(t => t.id !== id);
             saveData();
         }

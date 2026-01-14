@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ - Version 12.0</title>
+    <title>Quản Lý Tiến Độ - Version 13.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -35,7 +35,7 @@
         input { height: 28px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
         .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
 
-        /* TABLE SECTION */
+        /* TABLE */
         .main-content { 
             background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
@@ -44,14 +44,8 @@
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
         td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 36px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* CẤU HÌNH CỘT - Tối ưu cho nội dung dài */
-        .col-task { width: 35%; }     
-        .col-date { width: 9%; }
-        .col-iter { width: 5%; text-align: center; }
-        .col-ref { width: 11%; }      
-        .col-prog { width: 13%; }     
-        .col-status { width: 9%; }
-        .col-act { width: 9%; }
+        .col-task { width: 35%; } .col-date { width: 9%; } .col-iter { width: 5%; text-align: center; }
+        .col-ref { width: 11%; } .col-prog { width: 13%; } .col-status { width: 9%; } .col-act { width: 9%; }
 
         .progress-bg { width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 3px; }
         .progress-fill { height: 100%; border-radius: 2px; transition: 0.3s; }
@@ -73,7 +67,7 @@
 
 <div class="container">
     <div class="top-bar">
-        <div class="brand"><i class="fa-solid fa-list-check"></i> QUẢN LÝ TIẾN ĐỘ</div>
+        <div class="brand"><i class="fa-solid fa-list-check"></i> QUẢN LÝ TIẾN ĐỘ <span id="syncStatus" style="font-size: 10px; color: #999; margin-left: 10px;"></span></div>
         <div class="stats-mini">
             <span>TỔNG: <b id="statTotal">0</b></span>
             <span>XONG: <b id="statDone">0</b></span>
@@ -120,47 +114,73 @@
 </div>
 
 <script>
-    const BIN_ID = 'DÁN_BIN_ID_CỦA_BẠN'; 
-    const READ_KEY = 'DÁN_READ_KEY_CỦA_BẠN';
+    // --- CẤU HÌNH ---
+    const BIN_ID = '6965ac34d0ea881f4067e559'; 
+    const MASTER_KEY_API = '$2a$10$zN5MZaAsLugTkyNZA0ZHMu7CKiAktxDFCw1IGFEi4H46JOocrLTSy'; // Master Key của JSONBin.io để ghi dữ liệu
+    const ACCESS_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K'; // Access Key để đọc dữ liệu
+
     const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 
     let allTasks = [];
-    let MASTER_KEY = localStorage.getItem('my_task_admin_key');
+    let IS_ADMIN_LOGGED_IN = localStorage.getItem('is_admin') === 'true';
     let currentPage = 1;
     const PAGE_SIZE = 9;
 
     async function fetchData() {
         checkPermissions();
+        showStatus("Đang tải...");
         try {
-            const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
+            const res = await fetch(URL, { 
+                method: 'GET',
+                headers: { 'X-Access-Key': ACCESS_KEY, 'X-Bin-Meta': false } 
+            });
             const data = await res.json();
-            // Đảm bảo lấy đúng mảng tasks
+            // Xử lý nếu data là object { tasks: [] } hoặc mảng trực tiếp
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
+            showStatus("Đã đồng bộ");
             renderTable();
         } catch (e) { 
-            console.error("Lỗi fetch:", e);
+            showStatus("Lỗi kết nối");
+            console.error(e);
             renderTable(); 
+        }
+    }
+
+    async function saveData() {
+        if(!IS_ADMIN_LOGGED_IN) return;
+        showStatus("Đang lưu...");
+        try {
+            const res = await fetch(URL, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-Master-Key': MASTER_KEY_API 
+                },
+                body: JSON.stringify({ tasks: allTasks })
+            });
+            if(res.ok) {
+                showStatus("Đã lưu lên JSONBin");
+                renderTable();
+            } else {
+                showStatus("Lỗi lưu (Check Key)");
+            }
+        } catch (e) { 
+            showStatus("Lỗi mạng");
         }
     }
 
     function renderTable() {
         const body = document.getElementById('taskBody');
-        if(!body) return;
         body.innerHTML = '';
         const now = new Date();
-        const isAdm = !!MASTER_KEY;
 
-        // Cập nhật số liệu thống kê
-        const totalCount = allTasks.length;
-        const doneCount = allTasks.filter(t => t.status === 'Hoàn thành').length;
-        document.getElementById('statTotal').innerText = totalCount;
-        document.getElementById('statDone').innerText = doneCount;
+        // Thống kê
+        document.getElementById('statTotal').innerText = allTasks.length;
+        document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
 
         const sorted = [...allTasks].reverse();
         const totalPages = Math.ceil(sorted.length / PAGE_SIZE) || 1;
-        
         if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
 
         const start = (currentPage - 1) * PAGE_SIZE;
         const pageData = sorted.slice(start, start + PAGE_SIZE);
@@ -177,7 +197,7 @@
                     <td>${t.end || ''}</td>
                     <td style="text-align:center">
                         ${t.iteration || 1}
-                        ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>` : ''}
+                        ${IS_ADMIN_LOGGED_IN ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>` : ''}
                     </td>
                     <td style="color:#4361ee; font-weight:600">${t.ref || ''}</td>
                     <td>
@@ -192,46 +212,44 @@
                 </tr>`;
         });
 
-        // HÀNG TRỐNG: Cực kỳ quan trọng, colspan phải là 8
         for (let i = pageData.length; i < PAGE_SIZE; i++) {
             body.innerHTML += `<tr style="height:36px"><td colspan="8">&nbsp;</td></tr>`;
         }
 
         document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
-        document.getElementById('btnPrev').disabled = (currentPage === 1);
-        document.getElementById('btnNext').disabled = (currentPage === totalPages);
+        document.getElementById('btnPrev').disabled = currentPage === 1;
+        document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    // Các hàm phụ trợ
+    // --- LOGIC ---
+    function showStatus(txt) { document.getElementById('syncStatus').innerText = "• " + txt; }
+
     function checkPermissions() {
-        const isAdm = !!MASTER_KEY;
-        document.body.className = isAdm ? 'is-admin' : 'is-client';
-        document.getElementById('btnLogout').style.display = isAdm ? 'block' : 'none';
-        document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'block';
+        document.body.className = IS_ADMIN_LOGGED_IN ? 'is-admin' : 'is-client';
+        document.getElementById('btnLogout').style.display = IS_ADMIN_LOGGED_IN ? 'block' : 'none';
+        document.getElementById('btnLogin').style.display = IS_ADMIN_LOGGED_IN ? 'none' : 'block';
     }
 
     function loginAdmin() {
-        const k = prompt("Master Key:");
-        if(k) { MASTER_KEY = k; localStorage.setItem('my_task_admin_key', k); fetchData(); }
+        const pass = prompt("Nhập mã bảo mật Admin:");
+        if(pass === "1234") { // Bạn có thể đổi mã này
+            IS_ADMIN_LOGGED_IN = true;
+            localStorage.setItem('is_admin', 'true');
+            fetchData();
+        } else {
+            alert("Sai mã!");
+        }
     }
 
-    function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
-
-    async function saveData() {
-        if(!MASTER_KEY) return;
-        try {
-            await fetch(URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
-                body: JSON.stringify({ tasks: allTasks })
-            });
-            renderTable();
-        } catch (e) { alert("Lỗi khi lưu!"); }
+    function logoutAdmin() {
+        IS_ADMIN_LOGGED_IN = false;
+        localStorage.removeItem('is_admin');
+        location.reload();
     }
 
     function addTask() {
         const n = document.getElementById('taskName').value, s = document.getElementById('startDate').value, e = document.getElementById('deadline').value;
-        if(!n || !s || !e) return alert("Vui lòng nhập đầy đủ thông tin!");
+        if(!n || !s || !e) return alert("Vui lòng điền đủ thông tin!");
         
         allTasks.push({ 
             id: Date.now().toString(), 
@@ -249,8 +267,8 @@
     }
 
     function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }
-    function updateStatus(id) { if(!MASTER_KEY) return; const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
-    function deleteTask(id) { if(!MASTER_KEY || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
+    function updateStatus(id) { if(!IS_ADMIN_LOGGED_IN) return alert("Cần quyền Admin"); const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
+    function deleteTask(id) { if(!IS_ADMIN_LOGGED_IN || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
     function changePage(v) { currentPage += v; renderTable(); }
 
     window.onload = fetchData;

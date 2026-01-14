@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ - Version 10.0</title>
+    <title>Quản Lý Tiến Độ - Version 11.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -25,9 +25,9 @@
         .stats-mini { display: flex; gap: 20px; font-size: 13px; font-weight: 600; }
         .stats-mini span b { color: var(--primary); font-size: 15px; }
 
-        /* FORM NHẬP LIỆU (Cập nhật thêm ô Tham Chiếu) */
+        /* FORM NHẬP LIỆU */
         #adminForm { 
-            display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 0.4fr 1fr 0.8fr; gap: 5px; 
+            display: grid; grid-template-columns: 2.2fr 0.8fr 0.8fr 0.8fr 0.4fr 1fr 0.6fr; gap: 5px; 
             background: #fff; padding: 5px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center;
             display: none;
         }
@@ -35,7 +35,7 @@
         input { height: 28px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
         .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
 
-        /* BẢNG DỮ LIỆU CỐ ĐỊNH */
+        /* BẢNG DỮ LIỆU */
         .main-content { 
             background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
@@ -44,23 +44,22 @@
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
         td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 35px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* ĐỘ RỘNG CÁC CỘT (Đã tinh chỉnh mở rộng col-task) */
-        .col-task { width: 28%; }     /* Mở rộng tên việc */
-        .col-date { width: 10%; }     /* Thu hẹp nhẹ */
-        .col-iter { width: 6%; text-align: center; }
-        .col-ref { width: 12%; }      /* Cột Tham Chiếu mới */
-        .col-prog { width: 15%; }     /* Giảm chiều rộng tiến độ */
+        /* CẤU HÌNH CỘT */
+        .col-task { width: 30%; }     /* Tên việc rộng nhất */
+        .col-date { width: 9%; }
+        .col-iter { width: 5%; text-align: center; }
+        .col-ref { width: 12%; }      /* Cột Tham Chiếu */
+        .col-prog { width: 15%; }     /* Tiến độ */
         .col-status { width: 10%; }
-        .col-act { width: 10%; }
+        .col-act { width: 9%; }
 
-        /* Components */
         .progress-bg { width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 3px; }
         .progress-fill { height: 100%; border-radius: 2px; transition: 0.3s; }
         .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; color: #fff; font-weight: 700; }
         .btn-sm { width: 24px; height: 24px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 2px; }
         .btn-iter { background: var(--warning); color: #000; width: 16px; height: 16px; font-size: 8px; padding: 0; }
 
-        /* PAGINATION */
+        /* PHÂN TRANG */
         .pagination { 
             display: flex; justify-content: center; align-items: center; gap: 15px; 
             padding: 8px 0; background: var(--bg); flex-shrink: 0;
@@ -134,10 +133,15 @@
         checkPermissions();
         try {
             const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
+            if (!res.ok) throw new Error("Lỗi tải");
             const data = await res.json();
+            // Xử lý dữ liệu từ JSONBin
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
             renderTable();
-        } catch (e) { console.error("Lỗi tải dữ liệu"); }
+        } catch (e) { 
+            console.error("Lỗi:", e); 
+            renderTable(); // Vẫn gọi để hiện hàng trống
+        }
     }
 
     function renderTable() {
@@ -146,16 +150,22 @@
         const now = new Date();
         const isAdm = !!MASTER_KEY;
 
-        document.getElementById('statTotal').innerText = allTasks.length;
-        document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
+        // Cập nhật thống kê
+        const totalCount = allTasks.length;
+        const doneCount = allTasks.filter(t => t.status === 'Hoàn thành').length;
+        document.getElementById('statTotal').innerText = totalCount;
+        document.getElementById('statDone').innerText = doneCount;
 
         const sorted = [...allTasks].reverse();
         const totalPages = Math.ceil(sorted.length / PAGE_SIZE) || 1;
+        
         if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
 
-        const start = (currentPage - 1) * PAGE_SIZE;
-        const pageData = sorted.slice(start, start + PAGE_SIZE);
+        const startIdx = (currentPage - 1) * PAGE_SIZE;
+        const pageData = sorted.slice(startIdx, startIdx + PAGE_SIZE);
 
+        // Hiển thị dữ liệu
         pageData.forEach(t => {
             const s = new Date(t.start), e = new Date(t.end);
             let p = (e > s) ? (now - s) / (e - s) : 0;
@@ -163,9 +173,9 @@
             
             body.innerHTML += `
                 <tr>
-                    <td title="${t.name}"><b>${t.name}</b><br><small style="color:#999">${t.dept}</small></td>
-                    <td>${t.start}</td>
-                    <td>${t.end}</td>
+                    <td title="${t.name}"><b>${t.name}</b><br><small style="color:#999">${t.dept || ''}</small></td>
+                    <td>${t.start || ''}</td>
+                    <td>${t.end || ''}</td>
                     <td style="text-align:center">
                         ${t.iteration || 1}
                         ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>`:''}
@@ -183,7 +193,9 @@
                 </tr>`;
         });
 
-        for (let i = pageData.length; i < PAGE_SIZE; i++) {
+        // Vẽ hàng trống cho đủ 9 dòng để giữ khung hình
+        const emptyCount = PAGE_SIZE - pageData.length;
+        for (let i = 0; i < emptyCount; i++) {
             body.innerHTML += `<tr style="height:35px"><td colspan="8"></td></tr>`;
         }
 
@@ -207,6 +219,7 @@
     function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
 
     async function saveData() {
+        if (!MASTER_KEY) return;
         try {
             await fetch(URL, {
                 method: 'PUT',
@@ -222,15 +235,16 @@
               s = document.getElementById('startDate').value, 
               e = document.getElementById('deadline').value,
               ref = document.getElementById('taskRef').value;
-        if(!n || !s || !e) return alert("Nhập đủ tin!");
+        if(!n || !s || !e) return alert("Nhập đủ thông tin chính!");
+        
         allTasks.push({ 
             id: Date.now().toString(), 
             name: n, 
-            dept: document.getElementById('dept').value, 
+            dept: document.getElementById('dept').value || "VP", 
             start: s, 
             end: e, 
-            iteration: parseInt(document.getElementById('iterCount').value), 
-            ref: ref,
+            iteration: parseInt(document.getElementById('iterCount').value) || 1, 
+            ref: ref || "",
             status: "Đang làm" 
         });
         saveData();
@@ -239,8 +253,20 @@
     }
 
     function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }
-    function updateStatus(id) { if(!MASTER_KEY) return; const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
-    function deleteTask(id) { if(!MASTER_KEY || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
+    
+    function updateStatus(id) { 
+        if(!MASTER_KEY) { alert("Chỉ Admin mới có thể thay đổi trạng thái!"); return; }
+        const t = allTasks.find(x => x.id === id); 
+        if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } 
+    }
+    
+    function deleteTask(id) { 
+        if(!MASTER_KEY) { alert("Chỉ Admin mới có thể xóa!"); return; }
+        if(!confirm("Xác nhận xóa công việc này?")) return; 
+        allTasks = allTasks.filter(x => x.id !== id); 
+        saveData(); 
+    }
+    
     function changePage(v) { currentPage += v; renderTable(); }
 
     window.onload = fetchData;

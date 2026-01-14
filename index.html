@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ - Version 11.0</title>
+    <title>Quản Lý Tiến Độ - Version 12.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -14,7 +14,7 @@
             font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 5px 10px; 
             height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
         }
-        .container { max-width: 1400px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
+        .container { max-width: 1450px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
 
         /* TOP BAR */
         .top-bar { 
@@ -25,32 +25,32 @@
         .stats-mini { display: flex; gap: 20px; font-size: 13px; font-weight: 600; }
         .stats-mini span b { color: var(--primary); font-size: 15px; }
 
-        /* FORM NHẬP LIỆU */
+        /* ADMIN FORM */
         #adminForm { 
-            display: grid; grid-template-columns: 2.2fr 0.8fr 0.8fr 0.8fr 0.4fr 1fr 0.6fr; gap: 5px; 
+            display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 0.5fr 1.2fr 0.8fr; gap: 5px; 
             background: #fff; padding: 5px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center;
             display: none;
         }
         body.is-admin #adminForm { display: grid; }
         input { height: 28px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
-        .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
+        .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
 
-        /* BẢNG DỮ LIỆU */
+        /* TABLE SECTION */
         .main-content { 
             background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
-        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 35px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 36px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* CẤU HÌNH CỘT */
-        .col-task { width: 30%; }     /* Tên việc rộng nhất */
+        /* CẤU HÌNH CỘT - Tối ưu cho nội dung dài */
+        .col-task { width: 35%; }     
         .col-date { width: 9%; }
         .col-iter { width: 5%; text-align: center; }
-        .col-ref { width: 12%; }      /* Cột Tham Chiếu */
-        .col-prog { width: 15%; }     /* Tiến độ */
-        .col-status { width: 10%; }
+        .col-ref { width: 11%; }      
+        .col-prog { width: 13%; }     
+        .col-status { width: 9%; }
         .col-act { width: 9%; }
 
         .progress-bg { width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 3px; }
@@ -59,7 +59,7 @@
         .btn-sm { width: 24px; height: 24px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 2px; }
         .btn-iter { background: var(--warning); color: #000; width: 16px; height: 16px; font-size: 8px; padding: 0; }
 
-        /* PHÂN TRANG */
+        /* PAGINATION */
         .pagination { 
             display: flex; justify-content: center; align-items: center; gap: 15px; 
             padding: 8px 0; background: var(--bg); flex-shrink: 0;
@@ -133,24 +133,24 @@
         checkPermissions();
         try {
             const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
-            if (!res.ok) throw new Error("Lỗi tải");
             const data = await res.json();
-            // Xử lý dữ liệu từ JSONBin
+            // Đảm bảo lấy đúng mảng tasks
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
             renderTable();
         } catch (e) { 
-            console.error("Lỗi:", e); 
-            renderTable(); // Vẫn gọi để hiện hàng trống
+            console.error("Lỗi fetch:", e);
+            renderTable(); 
         }
     }
 
     function renderTable() {
         const body = document.getElementById('taskBody');
+        if(!body) return;
         body.innerHTML = '';
         const now = new Date();
         const isAdm = !!MASTER_KEY;
 
-        // Cập nhật thống kê
+        // Cập nhật số liệu thống kê
         const totalCount = allTasks.length;
         const doneCount = allTasks.filter(t => t.status === 'Hoàn thành').length;
         document.getElementById('statTotal').innerText = totalCount;
@@ -162,10 +162,9 @@
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
-        const startIdx = (currentPage - 1) * PAGE_SIZE;
-        const pageData = sorted.slice(startIdx, startIdx + PAGE_SIZE);
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const pageData = sorted.slice(start, start + PAGE_SIZE);
 
-        // Hiển thị dữ liệu
         pageData.forEach(t => {
             const s = new Date(t.start), e = new Date(t.end);
             let p = (e > s) ? (now - s) / (e - s) : 0;
@@ -178,7 +177,7 @@
                     <td>${t.end || ''}</td>
                     <td style="text-align:center">
                         ${t.iteration || 1}
-                        ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>`:''}
+                        ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>` : ''}
                     </td>
                     <td style="color:#4361ee; font-weight:600">${t.ref || ''}</td>
                     <td>
@@ -193,17 +192,17 @@
                 </tr>`;
         });
 
-        // Vẽ hàng trống cho đủ 9 dòng để giữ khung hình
-        const emptyCount = PAGE_SIZE - pageData.length;
-        for (let i = 0; i < emptyCount; i++) {
-            body.innerHTML += `<tr style="height:35px"><td colspan="8"></td></tr>`;
+        // HÀNG TRỐNG: Cực kỳ quan trọng, colspan phải là 8
+        for (let i = pageData.length; i < PAGE_SIZE; i++) {
+            body.innerHTML += `<tr style="height:36px"><td colspan="8">&nbsp;</td></tr>`;
         }
 
         document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
-        document.getElementById('btnPrev').disabled = currentPage === 1;
-        document.getElementById('btnNext').disabled = currentPage === totalPages;
+        document.getElementById('btnPrev').disabled = (currentPage === 1);
+        document.getElementById('btnNext').disabled = (currentPage === totalPages);
     }
 
+    // Các hàm phụ trợ
     function checkPermissions() {
         const isAdm = !!MASTER_KEY;
         document.body.className = isAdm ? 'is-admin' : 'is-client';
@@ -219,7 +218,7 @@
     function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
 
     async function saveData() {
-        if (!MASTER_KEY) return;
+        if(!MASTER_KEY) return;
         try {
             await fetch(URL, {
                 method: 'PUT',
@@ -227,15 +226,12 @@
                 body: JSON.stringify({ tasks: allTasks })
             });
             renderTable();
-        } catch (e) { alert("Lỗi lưu dữ liệu"); }
+        } catch (e) { alert("Lỗi khi lưu!"); }
     }
 
     function addTask() {
-        const n = document.getElementById('taskName').value, 
-              s = document.getElementById('startDate').value, 
-              e = document.getElementById('deadline').value,
-              ref = document.getElementById('taskRef').value;
-        if(!n || !s || !e) return alert("Nhập đủ thông tin chính!");
+        const n = document.getElementById('taskName').value, s = document.getElementById('startDate').value, e = document.getElementById('deadline').value;
+        if(!n || !s || !e) return alert("Vui lòng nhập đầy đủ thông tin!");
         
         allTasks.push({ 
             id: Date.now().toString(), 
@@ -244,7 +240,7 @@
             start: s, 
             end: e, 
             iteration: parseInt(document.getElementById('iterCount').value) || 1, 
-            ref: ref || "",
+            ref: document.getElementById('taskRef').value || "",
             status: "Đang làm" 
         });
         saveData();
@@ -253,20 +249,8 @@
     }
 
     function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }
-    
-    function updateStatus(id) { 
-        if(!MASTER_KEY) { alert("Chỉ Admin mới có thể thay đổi trạng thái!"); return; }
-        const t = allTasks.find(x => x.id === id); 
-        if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } 
-    }
-    
-    function deleteTask(id) { 
-        if(!MASTER_KEY) { alert("Chỉ Admin mới có thể xóa!"); return; }
-        if(!confirm("Xác nhận xóa công việc này?")) return; 
-        allTasks = allTasks.filter(x => x.id !== id); 
-        saveData(); 
-    }
-    
+    function updateStatus(id) { if(!MASTER_KEY) return; const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
+    function deleteTask(id) { if(!MASTER_KEY || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
     function changePage(v) { currentPage += v; renderTable(); }
 
     window.onload = fetchData;

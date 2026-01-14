@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ - Version 13.0</title>
+    <title>Quản Lý Tiến Độ - Version 10.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -14,7 +14,7 @@
             font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 5px 10px; 
             height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
         }
-        .container { max-width: 1450px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
+        .container { max-width: 1400px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
 
         /* TOP BAR */
         .top-bar { 
@@ -25,28 +25,35 @@
         .stats-mini { display: flex; gap: 20px; font-size: 13px; font-weight: 600; }
         .stats-mini span b { color: var(--primary); font-size: 15px; }
 
-        /* ADMIN FORM */
+        /* FORM NHẬP LIỆU (Cập nhật thêm ô Tham Chiếu) */
         #adminForm { 
-            display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 0.5fr 1.2fr 0.8fr; gap: 5px; 
+            display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 0.4fr 1fr 0.8fr; gap: 5px; 
             background: #fff; padding: 5px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center;
             display: none;
         }
         body.is-admin #adminForm { display: grid; }
         input { height: 28px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
-        .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+        .btn-add { height: 28px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
 
-        /* TABLE */
+        /* BẢNG DỮ LIỆU CỐ ĐỊNH */
         .main-content { 
             background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
         }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 30px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
-        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 36px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 35px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .col-task { width: 35%; } .col-date { width: 9%; } .col-iter { width: 5%; text-align: center; }
-        .col-ref { width: 11%; } .col-prog { width: 13%; } .col-status { width: 9%; } .col-act { width: 9%; }
+        /* ĐỘ RỘNG CÁC CỘT (Đã tinh chỉnh mở rộng col-task) */
+        .col-task { width: 28%; }     /* Mở rộng tên việc */
+        .col-date { width: 10%; }     /* Thu hẹp nhẹ */
+        .col-iter { width: 6%; text-align: center; }
+        .col-ref { width: 12%; }      /* Cột Tham Chiếu mới */
+        .col-prog { width: 15%; }     /* Giảm chiều rộng tiến độ */
+        .col-status { width: 10%; }
+        .col-act { width: 10%; }
 
+        /* Components */
         .progress-bg { width: 100%; background: #eee; height: 4px; border-radius: 2px; margin-top: 3px; }
         .progress-fill { height: 100%; border-radius: 2px; transition: 0.3s; }
         .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; color: #fff; font-weight: 700; }
@@ -67,7 +74,7 @@
 
 <div class="container">
     <div class="top-bar">
-        <div class="brand"><i class="fa-solid fa-list-check"></i> QUẢN LÝ TIẾN ĐỘ <span id="syncStatus" style="font-size: 10px; color: #999; margin-left: 10px;"></span></div>
+        <div class="brand"><i class="fa-solid fa-list-check"></i> QUẢN LÝ TIẾN ĐỘ</div>
         <div class="stats-mini">
             <span>TỔNG: <b id="statTotal">0</b></span>
             <span>XONG: <b id="statDone">0</b></span>
@@ -114,67 +121,31 @@
 </div>
 
 <script>
-    // --- CẤU HÌNH ---
     const BIN_ID = '6965ac34d0ea881f4067e559'; 
-    const MASTER_KEY_API = '$2a$10$zN5MZaAsLugTkyNZA0ZHMu7CKiAktxDFCw1IGFEi4H46JOocrLTSy'; // Master Key của JSONBin.io để ghi dữ liệu
-    const ACCESS_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K'; // Access Key để đọc dữ liệu
-
+    const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 
     let allTasks = [];
-    let IS_ADMIN_LOGGED_IN = localStorage.getItem('is_admin') === 'true';
+    let MASTER_KEY = localStorage.getItem('my_task_admin_key');
     let currentPage = 1;
     const PAGE_SIZE = 9;
 
     async function fetchData() {
         checkPermissions();
-        showStatus("Đang tải...");
         try {
-            const res = await fetch(URL, { 
-                method: 'GET',
-                headers: { 'X-Access-Key': ACCESS_KEY, 'X-Bin-Meta': false } 
-            });
+            const res = await fetch(URL, { headers: { 'X-Access-Key': READ_KEY, 'X-Bin-Meta': false } });
             const data = await res.json();
-            // Xử lý nếu data là object { tasks: [] } hoặc mảng trực tiếp
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
-            showStatus("Đã đồng bộ");
             renderTable();
-        } catch (e) { 
-            showStatus("Lỗi kết nối");
-            console.error(e);
-            renderTable(); 
-        }
-    }
-
-    async function saveData() {
-        if(!IS_ADMIN_LOGGED_IN) return;
-        showStatus("Đang lưu...");
-        try {
-            const res = await fetch(URL, {
-                method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'X-Master-Key': MASTER_KEY_API 
-                },
-                body: JSON.stringify({ tasks: allTasks })
-            });
-            if(res.ok) {
-                showStatus("Đã lưu lên JSONBin");
-                renderTable();
-            } else {
-                showStatus("Lỗi lưu (Check Key)");
-            }
-        } catch (e) { 
-            showStatus("Lỗi mạng");
-        }
+        } catch (e) { console.error("Lỗi tải dữ liệu"); }
     }
 
     function renderTable() {
         const body = document.getElementById('taskBody');
         body.innerHTML = '';
         const now = new Date();
+        const isAdm = !!MASTER_KEY;
 
-        // Thống kê
         document.getElementById('statTotal').innerText = allTasks.length;
         document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
 
@@ -192,12 +163,12 @@
             
             body.innerHTML += `
                 <tr>
-                    <td title="${t.name}"><b>${t.name}</b><br><small style="color:#999">${t.dept || ''}</small></td>
-                    <td>${t.start || ''}</td>
-                    <td>${t.end || ''}</td>
+                    <td title="${t.name}"><b>${t.name}</b><br><small style="color:#999">${t.dept}</small></td>
+                    <td>${t.start}</td>
+                    <td>${t.end}</td>
                     <td style="text-align:center">
                         ${t.iteration || 1}
-                        ${IS_ADMIN_LOGGED_IN ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>` : ''}
+                        ${isAdm ? `<button class="btn-sm btn-iter" onclick="incIter('${t.id}')">▲</button>`:''}
                     </td>
                     <td style="color:#4361ee; font-weight:600">${t.ref || ''}</td>
                     <td>
@@ -213,7 +184,7 @@
         });
 
         for (let i = pageData.length; i < PAGE_SIZE; i++) {
-            body.innerHTML += `<tr style="height:36px"><td colspan="8">&nbsp;</td></tr>`;
+            body.innerHTML += `<tr style="height:35px"><td colspan="8"></td></tr>`;
         }
 
         document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
@@ -221,44 +192,45 @@
         document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    // --- LOGIC ---
-    function showStatus(txt) { document.getElementById('syncStatus').innerText = "• " + txt; }
-
     function checkPermissions() {
-        document.body.className = IS_ADMIN_LOGGED_IN ? 'is-admin' : 'is-client';
-        document.getElementById('btnLogout').style.display = IS_ADMIN_LOGGED_IN ? 'block' : 'none';
-        document.getElementById('btnLogin').style.display = IS_ADMIN_LOGGED_IN ? 'none' : 'block';
+        const isAdm = !!MASTER_KEY;
+        document.body.className = isAdm ? 'is-admin' : 'is-client';
+        document.getElementById('btnLogout').style.display = isAdm ? 'block' : 'none';
+        document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'block';
     }
 
     function loginAdmin() {
-        const pass = prompt("Nhập mã bảo mật Admin:");
-        if(pass === "1234") { // Bạn có thể đổi mã này
-            IS_ADMIN_LOGGED_IN = true;
-            localStorage.setItem('is_admin', 'true');
-            fetchData();
-        } else {
-            alert("Sai mã!");
-        }
+        const k = prompt("Master Key:");
+        if(k) { MASTER_KEY = k; localStorage.setItem('my_task_admin_key', k); fetchData(); }
     }
 
-    function logoutAdmin() {
-        IS_ADMIN_LOGGED_IN = false;
-        localStorage.removeItem('is_admin');
-        location.reload();
+    function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
+
+    async function saveData() {
+        try {
+            await fetch(URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                body: JSON.stringify({ tasks: allTasks })
+            });
+            renderTable();
+        } catch (e) { alert("Lỗi lưu dữ liệu"); }
     }
 
     function addTask() {
-        const n = document.getElementById('taskName').value, s = document.getElementById('startDate').value, e = document.getElementById('deadline').value;
-        if(!n || !s || !e) return alert("Vui lòng điền đủ thông tin!");
-        
+        const n = document.getElementById('taskName').value, 
+              s = document.getElementById('startDate').value, 
+              e = document.getElementById('deadline').value,
+              ref = document.getElementById('taskRef').value;
+        if(!n || !s || !e) return alert("Nhập đủ tin!");
         allTasks.push({ 
             id: Date.now().toString(), 
             name: n, 
-            dept: document.getElementById('dept').value || "VP", 
+            dept: document.getElementById('dept').value, 
             start: s, 
             end: e, 
-            iteration: parseInt(document.getElementById('iterCount').value) || 1, 
-            ref: document.getElementById('taskRef').value || "",
+            iteration: parseInt(document.getElementById('iterCount').value), 
+            ref: ref,
             status: "Đang làm" 
         });
         saveData();
@@ -267,8 +239,8 @@
     }
 
     function incIter(id) { const t = allTasks.find(x => x.id === id); if(t) { t.iteration = (t.iteration || 1) + 1; saveData(); } }
-    function updateStatus(id) { if(!IS_ADMIN_LOGGED_IN) return alert("Cần quyền Admin"); const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
-    function deleteTask(id) { if(!IS_ADMIN_LOGGED_IN || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
+    function updateStatus(id) { if(!MASTER_KEY) return; const t = allTasks.find(x => x.id === id); if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
+    function deleteTask(id) { if(!MASTER_KEY || !confirm("Xóa?")) return; allTasks = allTasks.filter(x => x.id !== id); saveData(); }
     function changePage(v) { currentPage += v; renderTable(); }
 
     window.onload = fetchData;

@@ -3,64 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Tiến Độ - Version 17.0</title>
+    <title>Quản Lý Tiến Độ - Version 18.0 (Auto Alert)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        :root { 
-            --primary: #4361ee; --success: #2ecc71; --danger: #ef476f; 
-            --warning: #ffd166; --dark: #1e293b; --bg: #f1f5f9;
-        }
-        body { 
-            font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 5px 10px; 
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
-        }
+        :root { --primary: #4361ee; --success: #2ecc71; --danger: #ef476f; --warning: #ffd166; --dark: #1e293b; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 5px 10px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; }
         .container { max-width: 1450px; margin: auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
-
-        /* TOP BAR */
-        .top-bar { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 5px; flex-shrink: 0;
-        }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 5px; flex-shrink: 0; }
         .brand { font-size: 16px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; }
         .stats-mini { display: flex; gap: 20px; font-size: 13px; font-weight: 600; }
         .stats-mini span b { color: var(--primary); font-size: 15px; }
-
-        /* ADMIN FORM */
-        #adminForm { 
-            display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 0.4fr 1.2fr 1fr 0.6fr; gap: 5px; 
-            background: #fff; padding: 8px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center;
-            display: none;
-        }
+        #adminForm { display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 0.4fr 1.2fr 1fr 0.6fr; gap: 5px; background: #fff; padding: 8px; border-radius: 8px; margin-bottom: 5px; flex-shrink: 0; align-items: center; display: none; }
         body.is-admin #adminForm { display: grid; }
         input { height: 30px; padding: 0 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; width: 100%; box-sizing: border-box; }
         .btn-add { height: 30px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
-
-        /* BẢNG DỮ LIỆU */
-        .main-content { 
-            background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; 
-        }
+        .main-content { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; color: #64748b; font-size: 11px; height: 32px; text-transform: uppercase; border-bottom: 1px solid #eee; text-align: left; padding: 0 10px; }
         td { border-bottom: 1px solid #f8fafc; font-size: 12px; height: 38px; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .col-task { width: 28%; } .col-date { width: 9%; } .col-iter { width: 5%; text-align: center; }
-        .col-ref { width: 11%; } .col-prog { width: 14%; } .col-status { width: 10%; } .col-act { width: 12%; }
-
         .overdue-row { background-color: #fff1f2 !important; }
         .progress-bg { width: 100%; background: #eee; height: 5px; border-radius: 3px; margin-top: 4px; }
         .progress-fill { height: 100%; border-radius: 3px; transition: 0.3s; }
         .badge { padding: 3px 7px; border-radius: 4px; font-size: 10px; color: #fff; font-weight: 700; }
         .btn-sm { width: 26px; height: 26px; border: none; border-radius: 4px; cursor: pointer; color: white; margin-right: 3px; display: inline-flex; align-items: center; justify-content: center; }
-
-        /* PHÂN TRANG */
-        .pagination { 
-            display: flex; justify-content: center; align-items: center; gap: 15px; 
-            padding: 10px 0; background: var(--bg); flex-shrink: 0;
-        }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px 0; background: var(--bg); flex-shrink: 0; }
         .btn-p { padding: 5px 15px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-login { background: #334155; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     </style>
 </head>
@@ -83,7 +51,7 @@
         <input type="text" id="taskName" placeholder="Tên việc...">
         <input type="date" id="startDate">
         <input type="date" id="deadline">
-        <input type="number" id="iterCount" value="1" title="Lần">
+        <input type="number" id="iterCount" value="1">
         <input type="text" id="taskRef" placeholder="Tham chiếu...">
         <input type="text" id="emailRecipient" placeholder="Email nhận nhắc nhở...">
         <button class="btn-add" onclick="addTask()">THÊM</button>
@@ -93,14 +61,14 @@
         <table>
             <thead>
                 <tr>
-                    <th class="col-task">Việc / Email nhận</th>
-                    <th class="col-date">Bắt đầu</th>
-                    <th class="col-date">Hạn chót</th>
-                    <th class="col-iter">Lần</th>
-                    <th class="col-ref">Tham chiếu</th>
-                    <th class="col-prog">Tiến độ</th>
-                    <th class="col-status">Trạng thái</th>
-                    <th class="col-act">Thao tác</th>
+                    <th style="width: 28%;">Việc / Email nhận</th>
+                    <th style="width: 9%;">Bắt đầu</th>
+                    <th style="width: 9%;">Hạn chót</th>
+                    <th style="width: 5%; text-align:center">Lần</th>
+                    <th style="width: 11%;">Tham chiếu</th>
+                    <th style="width: 14%;">Tiến độ</th>
+                    <th style="width: 10%;">Trạng thái</th>
+                    <th style="width: 12%;">Thao tác</th>
                 </tr>
             </thead>
             <tbody id="taskBody"></tbody>
@@ -124,7 +92,6 @@
     const READ_KEY = '$2a$10$E020cSPDeHQd0G9ytrUj3u1YSFJN0d9sP3X0B38kOk.sZoVNqZn8K';
     const URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 
-    // Khởi tạo EmailJS
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
     let allTasks = [];
@@ -139,6 +106,8 @@
             const data = await res.json();
             allTasks = data.tasks || (Array.isArray(data) ? data : []);
             renderTable();
+            // Sau khi tải xong dữ liệu, thực hiện quét quá hạn tự động
+            autoCheckOverdue();
         } catch (e) { renderTable(); }
     }
 
@@ -147,7 +116,6 @@
         body.innerHTML = '';
         const now = new Date();
         now.setHours(0,0,0,0);
-        const isAdm = !!MASTER_KEY;
 
         document.getElementById('statTotal').innerText = allTasks.length;
         document.getElementById('statDone').innerText = allTasks.filter(t => t.status === 'Hoàn thành').length;
@@ -162,7 +130,6 @@
         pageData.forEach(t => {
             const s = new Date(t.start), e = new Date(t.end);
             const isOverdue = e < now && t.status !== "Hoàn thành";
-            
             let p = (e > s) ? (now - s) / (e - s) : 0;
             p = Math.max(0, Math.min(1, (t.status === "Hoàn thành" ? 1 : p)));
             
@@ -180,38 +147,50 @@
                     <td><span class="badge" style="background:${t.status==='Hoàn thành'?'#2ecc71':'#4361ee'}">${t.status}</span></td>
                     <td>
                         <button class="btn-sm" style="background:#2ecc71" onclick="updateStatus('${t.id}')"><i class="fa-solid fa-check"></i></button>
-                        ${isOverdue ? `<button class="btn-sm" style="background:var(--warning); color:#000" onclick="sendEmailAlert('${t.id}')"><i class="fa-solid fa-envelope"></i></button>` : ''}
+                        ${isOverdue ? `<button class="btn-sm" style="background:${t.alertSent ? '#94a3b8' : 'var(--warning)'}; color:#000" onclick="sendEmailManual('${t.id}')" title="${t.alertSent ? 'Đã gửi tự động' : 'Gửi nhắc nhở'}"><i class="fa-solid fa-envelope"></i></button>` : ''}
                         <button class="btn-sm" style="background:#ef476f" onclick="deleteTask('${t.id}')"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>`;
         });
-
-        for (let i = pageData.length; i < PAGE_SIZE; i++) {
-            body.innerHTML += `<tr style="height:38px"><td colspan="8"></td></tr>`;
-        }
 
         document.getElementById('pageInfo').innerText = `Trang ${currentPage}/${totalPages}`;
         document.getElementById('btnPrev').disabled = currentPage === 1;
         document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    function sendEmailAlert(id) {
+    // --- LOGIC TỰ ĐỘNG GỬI (DUY NHẤT 1 LẦN) ---
+    async function autoCheckOverdue() {
+        if (!MASTER_KEY) return;
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        let hasChange = false;
+
+        for (let t of allTasks) {
+            const deadline = new Date(t.end);
+            if (deadline < now && t.status !== 'Hoàn thành' && t.dept && !t.alertSent) {
+                try {
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                        task_name: t.name, deadline: t.end, ref: t.ref, dept: t.dept
+                    });
+                    t.alertSent = true; 
+                    hasChange = true;
+                    console.log("Auto-sent email for: " + t.name);
+                } catch (err) { console.error("Email failed", err); }
+            }
+        }
+        if (hasChange) saveData();
+    }
+
+    function sendEmailManual(id) {
         const t = allTasks.find(x => x.id === id);
-        if(!t || !t.dept) return alert("Vui lòng nhập Email người nhận vào ô Phụ trách/Email!");
-
-        if(!confirm(`Gửi mail nhắc nhở đến: ${t.dept}?`)) return;
-
-        // Các biến này phải khớp với {{biến}} trong Template EmailJS
-        const templateParams = {
-            task_name: t.name,
-            deadline: t.end,
-            ref: t.ref,
-            dept: t.dept // Email người nhận
-        };
-
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(() => alert("Đã gửi email nhắc nhở thành công!"), 
-                  (err) => alert("Lỗi gửi mail: " + JSON.stringify(err)));
+        if(!t.dept || !confirm(`Gửi nhắc nhở đến ${t.dept}?`)) return;
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+            task_name: t.name, deadline: t.end, ref: t.ref, dept: t.dept
+        }).then(() => {
+            alert("Đã gửi thành công!");
+            t.alertSent = true;
+            saveData();
+        });
     }
 
     async function saveData() {
@@ -223,61 +202,27 @@
                 headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
                 body: JSON.stringify({ tasks: allTasks })
             });
-            document.getElementById('syncText').innerText = "• Đã lưu";
-            setTimeout(() => document.getElementById('syncText').innerText = "", 2000);
+            document.getElementById('syncText').innerText = "";
             renderTable();
         } catch (e) { alert("Lỗi lưu dữ liệu"); }
     }
 
     function addTask() {
-        const n = document.getElementById('taskName').value, 
-              s = document.getElementById('startDate').value, 
-              e = document.getElementById('deadline').value,
-              ref = document.getElementById('taskRef').value,
-              email = document.getElementById('emailRecipient').value,
-              iter = document.getElementById('iterCount').value;
-        if(!n || !s || !e) return alert("Nhập đủ thông tin chính!");
-        
+        const n = document.getElementById('taskName').value, s = document.getElementById('startDate').value, e = document.getElementById('deadline').value;
+        if(!n || !s || !e) return alert("Nhập đủ thông tin!");
         allTasks.push({ 
-            id: Date.now().toString(), 
-            name: n, 
-            dept: email, // Lưu email vào trường dept
-            start: s, 
-            end: e, 
-            iteration: iter || 1, 
-            ref: ref || "",
-            status: "Đang làm" 
+            id: Date.now().toString(), name: n, dept: document.getElementById('emailRecipient').value, 
+            start: s, end: e, iteration: document.getElementById('iterCount').value || 1, 
+            ref: document.getElementById('taskRef').value || "", status: "Đang làm", alertSent: false 
         });
         saveData();
-        document.getElementById('taskName').value = '';
-        document.getElementById('taskRef').value = '';
-        document.getElementById('emailRecipient').value = '';
+        document.getElementById('taskName').value = ''; document.getElementById('taskRef').value = ''; document.getElementById('emailRecipient').value = '';
     }
 
-    function updateStatus(id) { 
-        if(!MASTER_KEY) return;
-        const t = allTasks.find(x => x.id === id); 
-        if(t) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } 
-    }
-    
-    function deleteTask(id) { 
-        if(!MASTER_KEY || !confirm("Xác nhận xóa?")) return; 
-        allTasks = allTasks.filter(x => x.id !== id); 
-        saveData(); 
-    }
-
-    function checkPermissions() {
-        const isAdm = !!MASTER_KEY;
-        document.body.className = isAdm ? 'is-admin' : 'is-client';
-        document.getElementById('btnLogout').style.display = isAdm ? 'block' : 'none';
-        document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'block';
-    }
-
-    function loginAdmin() {
-        const k = prompt("Nhập Master Key:");
-        if(k) { MASTER_KEY = k; localStorage.setItem('my_task_admin_key', k); fetchData(); }
-    }
-
+    function updateStatus(id) { const t = allTasks.find(x => x.id === id); if(t && MASTER_KEY) { t.status = t.status === "Hoàn thành" ? "Đang làm" : "Hoàn thành"; saveData(); } }
+    function deleteTask(id) { if(MASTER_KEY && confirm("Xóa?")) { allTasks = allTasks.filter(x => x.id !== id); saveData(); } }
+    function checkPermissions() { const isAdm = !!MASTER_KEY; document.body.className = isAdm ? 'is-admin' : 'is-client'; document.getElementById('btnLogout').style.display = isAdm ? 'block' : 'none'; document.getElementById('btnLogin').style.display = isAdm ? 'none' : 'block'; }
+    function loginAdmin() { const k = prompt("Master Key:"); if(k) { MASTER_KEY = k; localStorage.setItem('my_task_admin_key', k); fetchData(); } }
     function logoutAdmin() { localStorage.removeItem('my_task_admin_key'); location.reload(); }
     function changePage(v) { currentPage += v; renderTable(); }
 
